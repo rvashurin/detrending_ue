@@ -3,6 +3,7 @@ import torch
 from comet import download_model, load_from_checkpoint
 from sacrebleu import BLEU
 from utils import load_managers
+from typing import List
 
 MODELS = ['llama', 'mistral7b', 'stablelm12b']
 LLAMA_DATASETS = [
@@ -40,8 +41,7 @@ def get_comet_qe_scores(
     translated_sentences: List[str],
     original_sentences: List[str],
     ):
-    #model_path = download_model('Unbabel/wmt23-cometkiwi-da-xxl')
-    model_path = download_model('Unbabel/wmt23-cometkiwi-da')
+    model_path = download_model('Unbabel/wmt23-cometkiwi-da-xxl')
     model = load_from_checkpoint(model_path)
 
     data = []
@@ -57,8 +57,8 @@ def get_bleu_scores(
     reference_sentences: List[str],
     ):
 
-    bleu = BLEU()
-    scores = bleu.sentences_score(translated_sentences, [reference_sentences])
+    bleu = BLEU(effective_order=True)
+    scores = [bleu.sentence_score(translated_sentences[i], [reference_sentences[i]]).score for i in range(len(translated_sentences))]
     signature = bleu.get_signature()
 
     return scores, signature
@@ -75,12 +75,9 @@ for model in MODELS:
         translated_sentences = manager.stats['greedy_texts']
         reference_sentences = manager.stats['target_texts']
 
-        manager.gen_metrics[('sequence', 'comet_metric')] = get_comet_metric_scores(translated_sentences, reference_sentences, original_sentences)
-        breakpoint()
-        manager.gen_metrics[('sequence', 'comet_qe')] = get_comet_qe_scores(translated_sentences, original_sentences)
-        breakpoint()
+        manager.gen_metrics[('sequence', 'comet_metric')] = get_comet_metric_scores(translated_sentences, reference_sentences, original_sentences)[0]
+        manager.gen_metrics[('sequence', 'comet_qe')] = get_comet_qe_scores(translated_sentences, original_sentences)[0]
         manager.gen_metrics[('sequence', 'bleu_proper')] = get_bleu_scores(translated_sentences, reference_sentences)[0]
-        breakpoint()
 
         manager.save(f'processed_mans/{model}_{dataset}_processed.man')
 
