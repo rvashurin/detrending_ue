@@ -1,2 +1,3 @@
 lm-polygraph==0.4.0
 unbabel-comet>=2.1.0
+sacrecomet==0.1.0
