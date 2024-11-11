@@ -9,7 +9,6 @@ import sklearn
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from collections import defaultdict
-from sacrebleu import CHRF, BLEU
 from utils import extract_and_prepare_data
 
 normalize = True

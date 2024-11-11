@@ -1,5 +1,4 @@
 mans/*
 charts/*
-*.tex
 .ipynb_checkpoints
 __pycache__

@@ -5,13 +5,18 @@ import sklearn
 from sklearn.preprocessing import MinMaxScaler
 from collections import defaultdict
 
-def extract_and_prepare_data(dataset, methods_dict, all_metrics, model='llama'):
+def load_managers(dataset, model='llama'):
     if model == 'llama':
         manager = UEManager.load(f'mans/llama_nmt/llama_{dataset}.man')
         train_manager = UEManager.load(f'mans/llama_nmt/llama_{dataset}_train.man')
     else:
         manager = UEManager.load(f'mans/polygraph_tacl_{model}_{dataset}.man')
         train_manager = UEManager.load(f'mans/polygraph_tacl_{model}_{dataset}_train.man')
+
+    return manager, train_manager
+
+def extract_and_prepare_data(dataset, methods_dict, all_metrics, model='llama'):
+    manager, train_manager = load_managers(dataset, model)
 
     full_ue_methods = list(methods_dict.keys())
     ue_methods = list(methods_dict.values())
