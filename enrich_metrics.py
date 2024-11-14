@@ -68,8 +68,12 @@ for model in MODELS:
         datasets = LLAMA_DATASETS
     else:
         datasets = DATASETS
+
     for dataset in datasets:
-        manager, _ = load_managers(dataset, model)
+        if model == 'llama':
+            manager = UEManager.load(f'mans/llama_nmt/llama_{dataset}.man')
+        else:
+            manager = UEManager.load(f'mans/polygraph_tacl_{model}_{dataset}.man')
 
         original_sentences = manager.stats['input_texts']
         translated_sentences = manager.stats['greedy_texts']

@@ -62,8 +62,7 @@ DATASETS = [
     'wmt19',
 ]
 
-LLAMA_METRICS = ['Comet', 'BLEU']
-METRICS = ['Comet']
+METRICS = ['Comet', 'bleu_proper', 'comet_qe', 'comet_metric']
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 
@@ -85,18 +84,18 @@ def score_ues(ues, metric):
     return raw_score
 
 for model in MODELS:
-    if model == 'llama':
-        datasets = LLAMA_DATASETS
-        gen_metrics = LLAMA_METRICS
-    else:
-        datasets = DATASETS
-        gen_metrics = METRICS
-    for metric in gen_metrics:
+    for metric in METRICS:
         all_metrics = [metric]
         ue_methods = list(methods_dict.values())
         ue_scores = defaultdict(list)
         coefs = defaultdict(list)
         ue_coefs = defaultdict(list)
+
+        if model == 'llama':
+            datasets = LLAMA_DATASETS
+        else:
+            datasets = DATASETS
+
         for dataset in datasets:
             train_ue_values, \
             test_ue_values, \
@@ -109,38 +108,38 @@ for model in MODELS:
             lower_q = np.quantile(train_gen_lengths, 0.05)
             below_q_ids = (train_gen_lengths < upper_q) & (train_gen_lengths > lower_q)
             train_gen_lengths = train_gen_lengths[below_q_ids]
-            for metric in all_metrics:
-                train_metric_values[metric] = train_metric_values[metric][below_q_ids]
+            #for metric in all_metrics:
+            #    train_metric_values[metric] = train_metric_values[metric][below_q_ids]
             for method in ue_methods:
                 train_ue_values[method] = train_ue_values[method][below_q_ids]
 
             train_normalized_metric_values = {}
             test_normalized_metric_values = {}
-            for metric in all_metrics:
-                if normalize:
-                    gen_length_scaler = MinMaxScaler()
-                    train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
-                    test_gen_lengths_normalized = gen_length_scaler.transform(gen_lengths[:, np.newaxis]).squeeze()
+            #for metric in all_metrics:
+            #    if normalize:
+            #        gen_length_scaler = MinMaxScaler()
+            #        train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
+            #        test_gen_lengths_normalized = gen_length_scaler.transform(gen_lengths[:, np.newaxis]).squeeze()
 
-                    scaler = MinMaxScaler()
-                    train_normalized_metric_values[metric] = scaler.fit_transform(train_metric_values[metric][:, np.newaxis]).squeeze()
-                    linreg = sklearn.linear_model.LinearRegression()
-                    linreg.fit(train_gen_lengths_normalized[:, np.newaxis], train_normalized_metric_values[metric])
-                    coefs[metric].append(linreg.coef_[0])
+            #        scaler = MinMaxScaler()
+            #        train_normalized_metric_values[metric] = scaler.fit_transform(train_metric_values[metric][:, np.newaxis]).squeeze()
+            #        linreg = sklearn.linear_model.LinearRegression()
+            #        linreg.fit(train_gen_lengths_normalized[:, np.newaxis], train_normalized_metric_values[metric])
+            #        coefs[metric].append(linreg.coef_[0])
 
-                    test_normalized_metric_values[metric] = scaler.transform(test_metric_values[metric][:, np.newaxis]).squeeze()
+            #        test_normalized_metric_values[metric] = scaler.transform(test_metric_values[metric][:, np.newaxis]).squeeze()
 
-                    linreg = sklearn.linear_model.LinearRegression()
-                    linreg.fit(test_gen_lengths_normalized[:, np.newaxis], test_normalized_metric_values[metric])
-                    coefs[metric].append(linreg.coef_[0])
-                else:
-                    linreg = sklearn.linear_model.LinearRegression()
-                    linreg.fit(train_gen_lengths[:, np.newaxis], train_metric_values[metric])
-                    coefs[metric].append(linreg.coef_[0])
+            #        linreg = sklearn.linear_model.LinearRegression()
+            #        linreg.fit(test_gen_lengths_normalized[:, np.newaxis], test_normalized_metric_values[metric])
+            #        coefs[metric].append(linreg.coef_[0])
+            #    else:
+            #        linreg = sklearn.linear_model.LinearRegression()
+            #        linreg.fit(train_gen_lengths[:, np.newaxis], train_metric_values[metric])
+            #        coefs[metric].append(linreg.coef_[0])
 
-                    linreg = sklearn.linear_model.LinearRegression()
-                    linreg.fit(gen_lengths[:, np.newaxis], test_metric_values[metric])
-                    coefs[metric].append(linreg.coef_[0])
+            #        linreg = sklearn.linear_model.LinearRegression()
+            #        linreg.fit(gen_lengths[:, np.newaxis], test_metric_values[metric])
+            #        coefs[metric].append(linreg.coef_[0])
 
             train_normalized_ue_values = {}
             test_normalized_ue_values = {}
@@ -152,7 +151,6 @@ for model in MODELS:
                     gen_length_scaler = MinMaxScaler()
                     train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
                     test_gen_lengths_normalized = gen_length_scaler.transform(gen_lengths[:, np.newaxis]).squeeze()
-
 
                     scaler = MinMaxScaler()
                     train_normalized_ue_values[method] = scaler.fit_transform(train_ue_values[method][:, np.newaxis]).squeeze()
@@ -254,14 +252,14 @@ for model in MODELS:
             for coef_type in ['train_c', 'test_c']:
                 columns.append(f'{dataset}_{coef_type}')
 
-        df = pd.DataFrame.from_dict(coefs, orient='index', columns=columns)
-        name = f'{model}_{metric}_metric_trends.tex'
-        if normalize:
-            name = f'{model}_{metric}_metric_trends_norm.tex'
-        with open(name, 'w') as f:
-            latex = df.to_latex(float_format="%.3f", escape=False)
-            latex = latex.replace('_', '\_')
-            f.write(latex)
+        #df = pd.DataFrame.from_dict(coefs, orient='index', columns=columns)
+        #name = f'{model}_{metric}_metric_trends.tex'
+        #if normalize:
+        #    name = f'{model}_{metric}_metric_trends_norm.tex'
+        #with open(name, 'w') as f:
+        #    latex = df.to_latex(float_format="%.3f", escape=False)
+        #    latex = latex.replace('_', '\_')
+        #    f.write(latex)
 
         df = pd.DataFrame.from_dict(ue_coefs, orient='index', columns=columns)
         name = f'{model}_{metric}_ue_trends.tex'

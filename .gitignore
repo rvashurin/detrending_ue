@@ -1,4 +1,5 @@
 mans/*
+processed_mans/*
 charts/*
 .ipynb_checkpoints
 __pycache__
