@@ -10,6 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from collections import defaultdict
 from utils import extract_and_prepare_data
+from pathlib import Path
 
 normalize = True
 
@@ -66,6 +67,47 @@ METRICS = ['Comet', 'bleu_proper', 'comet_qe', 'comet_metric']
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 
+def build_rejection_curve(ues, metrics):
+    order = np.argsort(ues)
+    sorted_metrics = metrics[order]
+    sum_rej_metrics = np.cumsum(sorted_metrics)
+    num_points_left = np.arange(1, len(sum_rej_metrics) + 1)
+
+    rej_metrics = sum_rej_metrics / num_points_left
+    rej_rates = num_points_left / len(sum_rej_metrics)
+
+    return rej_metrics[::-1], rej_rates[::-1]
+
+def plot_rejection_curve(raw_ues, detr_ues, metrics, model, dataset, metric):
+    path_to_charts = f'charts/{model}/{dataset}/{metric}'
+    Path(path_to_charts).mkdir(parents=True, exist_ok=True)
+
+    oracle_rejection, rates = build_rejection_curve(-met_vals, met_vals)
+    raw_rejection, rates = build_rejection_curve(test_ue_values[method], met_vals)
+    detr_rejection, rates = build_rejection_curve(ue_residuals[method], met_vals)
+
+    plt.plot(rates, oracle_rejection, label='Oracle')
+    plt.plot(rates, raw_rejection, label='Raw')
+    plt.plot(rates, detr_rejection, label='Detrended')
+    plt.legend()
+    plt.xlabel('Rejection Rate')
+    plt.ylabel(metric)
+    plt.title(f'{model} {dataset} {metric}')
+    plt.savefig(f'{path_to_charts}/{method}.png')
+    plt.close()
+
+    diff_at_30 = difference_at_rejection_rate(0.3, rates, raw_rejection, detr_rejection)
+    diff_at_50 = difference_at_rejection_rate(0.5, rates, raw_rejection, detr_rejection)
+    diff_at_70 = difference_at_rejection_rate(0.7, rates, raw_rejection, detr_rejection)
+
+    return diff_at_30, diff_at_50, diff_at_70
+
+def difference_at_rejection_rate(rate, rejection_rates, raw_rejection, detr_rejection):
+    closest_rate_id = np.argmin(np.abs(rejection_rates - rate))
+    diff = detr_rejection[closest_rate_id] - raw_rejection[closest_rate_id]
+
+    return diff
+
 def score_ues(ues, metric):
     ues_nans = np.isnan(ues)
     metric_nans = np.isnan(metric)
@@ -90,6 +132,9 @@ for model in MODELS:
         ue_scores = defaultdict(list)
         coefs = defaultdict(list)
         ue_coefs = defaultdict(list)
+        diffs_at_30 = defaultdict(list)
+        diffs_at_50 = defaultdict(list)
+        diffs_at_70 = defaultdict(list)
 
         if model == 'llama':
             datasets = LLAMA_DATASETS
@@ -174,6 +219,11 @@ for model in MODELS:
 
                         ue_scores[f'{method}_raw'].append(raw_score)
                         ue_scores[f'{method}_detr'].append(detrended_score)
+
+                        diff_at_30, diff_at_50, diff_at_70 = plot_rejection_curve(test_normalized_ue_values[method], ue_residuals[method], met_vals, model, dataset, metric)
+                        diffs_at_30[method].append(diff_at_30)
+                        diffs_at_50[method].append(diff_at_50)
+                        diffs_at_70[method].append(diff_at_70)
                 else:
                     linreg = sklearn.linear_model.LinearRegression()
                     linreg.fit(train_gen_lengths[:, np.newaxis], train_ue_values[method])
@@ -190,6 +240,11 @@ for model in MODELS:
 
                         ue_scores[f'{method}_raw'].append(raw_score)
                         ue_scores[f'{method}_detr'].append(detrended_score)
+
+                        diff_at_30, diff_at_50, diff_at_70 = plot_rejection_curve(test_ue_values[method], ue_residuals[method], met_vals, model, dataset, metric)
+                        diffs_at_30[method].append(diff_at_30)
+                        diffs_at_50[method].append(diff_at_50)
+                        diffs_at_70[method].append(diff_at_70)
 
         raw_column_values = []
         detr_column_values = []
@@ -246,6 +301,29 @@ for model in MODELS:
             # add \midrule every third line starting from start_id
             latex = '\n'.join([line if i % 2 != 0 else line + '\n\\midrule' for i, line in enumerate(latex.split('\n'), start=start_id)])
             f.write(latex)
+
+        columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics]
+
+        df = pd.DataFrame.from_dict(diffs_at_30, orient='index', columns=columns)
+        name = f'{model}_{metric}_ue_rej_diffs_at_30.tex'
+        with open(name, 'w') as f:
+            latex = df.to_latex(float_format="%.2f", escape=False)
+            latex = latex.replace('_', '\_')
+            f.write(latex)
+        df = pd.DataFrame.from_dict(diffs_at_50, orient='index', columns=columns)
+        name = f'{model}_{metric}_ue_rej_diffs_at_50.tex'
+        with open(name, 'w') as f:
+            latex = df.to_latex(float_format="%.2f", escape=False)
+            latex = latex.replace('_', '\_')
+            f.write(latex)
+        df = pd.DataFrame.from_dict(diffs_at_70, orient='index', columns=columns)
+        name = f'{model}_{metric}_ue_rej_diffs_at_70.tex'
+        with open(name, 'w') as f:
+            latex = df.to_latex(float_format="%.2f", escape=False)
+            latex = latex.replace('_', '\_')
+            f.write(latex)
+
+
 
         columns = []
         for dataset in datasets:
