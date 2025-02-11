@@ -5,6 +5,7 @@ from sacrebleu import BLEU
 from utils import load_managers
 from typing import List
 from lm_polygraph.utils.manager import UEManager
+import pathlib
 
 #MODELS = ['llama', 'mistral7b', 'stablelm12b']
 MODELS = ['llama1b']
@@ -66,6 +67,8 @@ def get_bleu_scores(
     return scores, signature
 
 for model in MODELS:
+    pathlib.Path(f'processed_mans').mkdir(parents=True, exist_ok=True)
+
     if 'llama' in model:
         datasets = LLAMA_DATASETS
     else:
