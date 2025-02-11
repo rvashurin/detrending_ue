@@ -6,12 +6,9 @@ from sklearn.preprocessing import MinMaxScaler
 from collections import defaultdict
 
 def load_managers(dataset, model='llama'):
-    manager = UEManager.load(f'processed_mans/{model}_{dataset}_processed.man')
+    manager = UEManager.load(f'processed_mans/{model}_{dataset}_test_processed.man')
 
-    if model == 'llama':
-        train_manager = UEManager.load(f'mans/llama_nmt/llama_{dataset}_train.man')
-    else:
-        train_manager = UEManager.load(f'mans/polygraph_tacl_{model}_{dataset}_train.man')
+    train_manager = UEManager.load(f'mans/{model}_{dataset}_train.man')
 
     return manager, train_manager
 

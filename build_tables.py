@@ -18,52 +18,54 @@ methods_dict = {
     'MaximumSequenceProbability': 'MSP',
     'Perplexity': 'PPL',
     'MeanTokenEntropy': 'MTE',
-    'MeanPointwiseMutualInformation': 'MPMI',
-    'MeanConditionalPointwiseMutualInformation': 'MCPMI',
-    'CCP': 'CCP',
-    'PTrue': 'PTrue',
-    'PTrueSampling': 'PTrueS',
+    #'MeanPointwiseMutualInformation': 'MPMI',
+    #'MeanConditionalPointwiseMutualInformation': 'MCPMI',
+    #'CCP': 'CCP',
+    #'PTrue': 'PTrue',
+    #'PTrueSampling': 'PTrueS',
     'MonteCarloSequenceEntropy': 'MCSE',
     'MonteCarloNormalizedSequenceEntropy': 'MCNSE',
     #'LexicalSimilarity_rouge1': 'LSR1',
     #'LexicalSimilarity_rouge2': 'LSR2',
     'LexicalSimilarity_rougeL': 'LSRL',
     #'LexicalSimilarity_BLEU': 'LSB',
-    'NumSemSets': 'NSS',
-    'EigValLaplacian_NLI_score_entail': 'ELE',
+    #'NumSemSets': 'NSS',
+    #'EigValLaplacian_NLI_score_entail': 'ELE',
     #'EigValLaplacian_NLI_score_contra': 'ELC',
     #'EigValLaplacian_Jaccard_score': 'ELJ',
-    'DegMat_NLI_score_entail': 'DME',
+    #'DegMat_NLI_score_entail': 'DME',
     #'DegMat_NLI_score_contra': 'DMC',
     #'DegMat_Jaccard_score': 'DMJ',
-    'Eccentricity_NLI_score_entail': 'EcE',
+    #'Eccentricity_NLI_score_entail': 'EcE',
     #'Eccentricity_NLI_score_contra': 'EcC',
     #'Eccentricity_Jaccard_score': 'EcJ',
-    'SemanticEntropy': 'SE',
-    'SAR': 'SAR',
-    'TokenSAR': 'TSAR',
-    'SentenceSAR': 'SSAR',
+    #'SemanticEntropy': 'SE',
+    #'SAR': 'SAR',
+    #'TokenSAR': 'TSAR',
+    #'SentenceSAR': 'SSAR',
     #'RenyiNeg': 'RN',
     #'FisherRao': 'FR',
 }
 
-MODELS = ['llama', 'mistral7b', 'stablelm12b']
+#MODELS = ['llama', 'mistral7b', 'stablelm12b']
+MODELS = ['llama1b']
 LLAMA_DATASETS = [
     'wmt14_csen',
-    'wmt14_deen',
+#    'wmt14_deen',
     'wmt14_ruen',
-    'wmt14_fren',
-    'wmt19_deen',
-    'wmt19_fien',
-    'wmt19_lten',
-    'wmt19_ruen',
+#    'wmt14_fren',
+#    'wmt19_deen',
+#    'wmt19_fien',
+#    'wmt19_lten',
+#    'wmt19_ruen',
 ]
-DATASETS = [
-    'wmt14',
-    'wmt19',
-]
+DATASETS = []
+#    'wmt14',
+#    'wmt19',
+#]
 
-METRICS = ['Comet', 'bleu_proper', 'comet_qe', 'comet_metric']
+#METRICS = ['Comet', 'bleu_proper', 'comet_qe', 'comet_metric']
+METRICS = ['Comet', 'bleu_proper']
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 
@@ -74,7 +76,7 @@ def build_rejection_curve(ues, metrics):
     num_points_left = np.arange(1, len(sum_rej_metrics) + 1)
 
     rej_metrics = sum_rej_metrics / num_points_left
-    rej_rates = num_points_left / len(sum_rej_metrics)
+    rej_rates = 1 - num_points_left / len(sum_rej_metrics)
 
     return rej_metrics[::-1], rej_rates[::-1]
 
@@ -82,9 +84,9 @@ def plot_rejection_curve(raw_ues, detr_ues, metrics, model, dataset, metric):
     path_to_charts = f'charts/{model}/{dataset}/{metric}'
     Path(path_to_charts).mkdir(parents=True, exist_ok=True)
 
-    oracle_rejection, rates = build_rejection_curve(-met_vals, met_vals)
-    raw_rejection, rates = build_rejection_curve(test_ue_values[method], met_vals)
-    detr_rejection, rates = build_rejection_curve(ue_residuals[method], met_vals)
+    oracle_rejection, rates = build_rejection_curve(-metrics, metrics)
+    raw_rejection, rates = build_rejection_curve(raw_ues, metrics)
+    detr_rejection, rates = build_rejection_curve(detr_ues, metrics)
 
     plt.plot(rates, oracle_rejection, label='Oracle')
     plt.plot(rates, raw_rejection, label='Raw')
@@ -93,7 +95,7 @@ def plot_rejection_curve(raw_ues, detr_ues, metrics, model, dataset, metric):
     plt.xlabel('Rejection Rate')
     plt.ylabel(metric)
     plt.title(f'{model} {dataset} {metric}')
-    plt.savefig(f'{path_to_charts}/{method}.png')
+    plt.savefig(f'{path_to_charts}/{dataset}_{method.lower()}.png')
     plt.close()
 
     diff_at_30 = difference_at_rejection_rate(0.3, rates, raw_rejection, detr_rejection)
@@ -125,6 +127,9 @@ def score_ues(ues, metric):
 
     return raw_score
 
+pathlib.Path('tables').mkdir(parents=True, exist_ok=True)
+pathlib.Path('charts').mkdir(parents=True, exist_ok=True)
+
 for model in MODELS:
     for metric in METRICS:
         all_metrics = [metric]
@@ -136,7 +141,7 @@ for model in MODELS:
         diffs_at_50 = defaultdict(list)
         diffs_at_70 = defaultdict(list)
 
-        if model == 'llama':
+        if 'llama' in model:
             datasets = LLAMA_DATASETS
         else:
             datasets = DATASETS
@@ -248,28 +253,30 @@ for model in MODELS:
 
         raw_column_values = []
         detr_column_values = []
-        for j, _ in enumerate(DATASETS):
-            n = len(all_metrics)
-            for i, _ in enumerate(all_metrics):
-                _id = i + j*n
+        for j, _ in enumerate(datasets):
+            #n = len(all_metrics)
+            #for i, _ in enumerate(all_metrics):
+            #    _id = i + j*n
 
-                raw_column_values.append([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
-                detr_column_values.append([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
+            _id = j
 
-                metric_raw_scores = np.array([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
-                metric_detr_scores = np.array([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
+            raw_column_values.append([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
+            detr_column_values.append([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
 
-                top_raw_id = np.argmax(metric_raw_scores)
-                top_detr_id = np.argmax(metric_detr_scores)
+            metric_raw_scores = np.array([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
+            metric_detr_scores = np.array([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
 
-                for method in ue_methods:
-                    ue_scores[f'{method}_raw'][_id] = f'{ue_scores[f"{method}_raw"][_id]:.2f}'
-                    ue_scores[f'{method}_detr'][_id] = f'{ue_scores[f"{method}_detr"][_id]:.2f}'
+            top_raw_id = np.argmax(metric_raw_scores)
+            top_detr_id = np.argmax(metric_detr_scores)
 
-                # wrap best detr method in bold
-                ue_scores[f'{ue_methods[top_detr_id]}_detr'][_id] = f'\\textbf{{{ue_scores[f"{ue_methods[top_detr_id]}_detr"][_id]}}}'
-                # wrap best raw method in underline
-                ue_scores[f'{ue_methods[top_raw_id]}_raw'][_id] = f'\\underline{{{ue_scores[f"{ue_methods[top_raw_id]}_raw"][_id]}}}'
+            for method in ue_methods:
+                ue_scores[f'{method}_raw'][_id] = f'{ue_scores[f"{method}_raw"][_id]:.2f}'
+                ue_scores[f'{method}_detr'][_id] = f'{ue_scores[f"{method}_detr"][_id]:.2f}'
+
+            # wrap best detr method in bold
+            ue_scores[f'{ue_methods[top_detr_id]}_detr'][_id] = f'\\textbf{{{ue_scores[f"{ue_methods[top_detr_id]}_detr"][_id]}}}'
+            # wrap best raw method in underline
+            ue_scores[f'{ue_methods[top_raw_id]}_raw'][_id] = f'\\underline{{{ue_scores[f"{ue_methods[top_raw_id]}_raw"][_id]}}}'
 
         total_column_values = []
         for raw_column, detr_column in zip(raw_column_values, detr_column_values):
@@ -290,9 +297,9 @@ for model in MODELS:
 
         columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics] + ['raw_rank', 'detr_rank', 'rank']
         df = pd.DataFrame.from_dict(ue_scores, orient='index', columns=columns)
-        name = f'{model}_{metric}_ue_scores.tex'
+        name = f'tables/{model}_{metric}_ue_scores.tex'
         if normalize:
-            name = f'{model}_{metric}_ue_scores_norm.tex'
+            name = f'tables/{model}_{metric}_ue_scores_norm.tex'
         with open(name, 'w') as f:
             latex = df.to_latex(float_format="%.2f", escape=False)
             latex = latex.replace('_', '\_')
@@ -305,19 +312,19 @@ for model in MODELS:
         columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics]
 
         df = pd.DataFrame.from_dict(diffs_at_30, orient='index', columns=columns)
-        name = f'{model}_{metric}_ue_rej_diffs_at_30.tex'
+        name = f'tables/{model}_{metric}_ue_rej_diffs_at_30.tex'
         with open(name, 'w') as f:
             latex = df.to_latex(float_format="%.2f", escape=False)
             latex = latex.replace('_', '\_')
             f.write(latex)
         df = pd.DataFrame.from_dict(diffs_at_50, orient='index', columns=columns)
-        name = f'{model}_{metric}_ue_rej_diffs_at_50.tex'
+        name = f'tables/{model}_{metric}_ue_rej_diffs_at_50.tex'
         with open(name, 'w') as f:
             latex = df.to_latex(float_format="%.2f", escape=False)
             latex = latex.replace('_', '\_')
             f.write(latex)
         df = pd.DataFrame.from_dict(diffs_at_70, orient='index', columns=columns)
-        name = f'{model}_{metric}_ue_rej_diffs_at_70.tex'
+        name = f'tables/{model}_{metric}_ue_rej_diffs_at_70.tex'
         with open(name, 'w') as f:
             latex = df.to_latex(float_format="%.2f", escape=False)
             latex = latex.replace('_', '\_')
@@ -331,18 +338,18 @@ for model in MODELS:
                 columns.append(f'{dataset}_{coef_type}')
 
         #df = pd.DataFrame.from_dict(coefs, orient='index', columns=columns)
-        #name = f'{model}_{metric}_metric_trends.tex'
+        #name = f'tables/{model}_{metric}_metric_trends.tex'
         #if normalize:
-        #    name = f'{model}_{metric}_metric_trends_norm.tex'
+        #    name = f'tables/{model}_{metric}_metric_trends_norm.tex'
         #with open(name, 'w') as f:
         #    latex = df.to_latex(float_format="%.3f", escape=False)
         #    latex = latex.replace('_', '\_')
         #    f.write(latex)
 
         df = pd.DataFrame.from_dict(ue_coefs, orient='index', columns=columns)
-        name = f'{model}_{metric}_ue_trends.tex'
+        name = f'tables/{model}_{metric}_ue_trends.tex'
         if normalize:
-            name = f'{model}_{metric}_ue_trends_norm.tex'
+            name = f'tables/{model}_{metric}_ue_trends_norm.tex'
 
         with open(name, 'w') as f:
             latex = df.to_latex(float_format="%.3f", escape=False)
