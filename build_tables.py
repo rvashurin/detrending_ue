@@ -305,12 +305,16 @@ for model in MODELS:
             if normalize:
                 name = f'tables/{model}{prefix}_{metric}_ue_scores_norm.tex'
             with open(name, 'w') as f:
-                latex = df.to_latex(float_format="%.2f", escape=False)
+                caption = f"PRRs for each method, with ranks for raw and detr methods, and total rank. Metric is {metric}, model is {model}{prefix}."
+                latex = df.style.set_caption(caption).format(precision=2).to_latex()
                 latex = latex.replace('_', '\_')
                 # find first line where \midrule is present
-                start_id = latex.split('\n').index('\\midrule') + 2
+                #start_id = latex.split('\n').index('\\midrule') + 2
                 # add \midrule every third line starting from start_id
-                latex = '\n'.join([line if i % 2 != 0 else line + '\n\\midrule' for i, line in enumerate(latex.split('\n'), start=start_id)])
+                header = latex.split('\n')[:3]
+                body = latex.split('\n')[3:-3]
+                footer = latex.split('\n')[-3:]
+                latex = '\n'.join(header + [line if i % 2 != 0 else line + '\n\\midrule' for i, line in enumerate(body)] + footer)
                 f.write(latex)
 
             columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics]
