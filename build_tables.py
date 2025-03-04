@@ -50,23 +50,35 @@ methods_dict = {
 
 #MODELS = ['llama', 'mistral7b', 'stablelm12b']
 MODELS = ['llama1b']
-LLAMA_DATASETS = [
-    'wmt14_csen',
-#    'wmt14_deen',
-    'wmt14_ruen',
-#    'wmt14_fren',
-#    'wmt19_deen',
-#    'wmt19_fien',
-#    'wmt19_lten',
-#    'wmt19_ruen',
-]
-DATASETS = []
-#    'wmt14',
-#    'wmt19',
-#]
+DATASETS = {
+    'Comet': [
+        'wmt14_csen',
+        'wmt14_deen',
+        'wmt14_ruen',
+        'wmt14_fren',
+        'wmt19_deen',
+        'wmt19_fien',
+        'wmt19_lten',
+        'wmt19_ruen',
+    ],
+    'bleu_proper': [
+        'wmt14_csen',
+        'wmt14_deen',
+        'wmt14_ruen',
+        'wmt14_fren',
+        'wmt19_deen',
+        'wmt19_fien',
+        'wmt19_lten',
+        'wmt19_ruen',
+    ],
+    'AlignScoreInputOutput': [
+        'xsum'
+    ]
+}
+LLAMA_DATASETS = DATASETS
 
 #METRICS = ['Comet', 'bleu_proper', 'comet_qe', 'comet_metric']
-METRICS = ['Comet', 'bleu_proper']
+METRICS = ['Comet', 'bleu_proper', 'AlignScoreInputOutput']
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 
@@ -132,8 +144,11 @@ pathlib.Path('tables').mkdir(parents=True, exist_ok=True)
 pathlib.Path('charts').mkdir(parents=True, exist_ok=True)
 
 for model in MODELS:
-    for model_type in ['base', 'instruct']:
+    #for model_type in ['base', 'instruct', 'instruct_zeroshot']:
+    for model_type in ['base']:
         prefix = '' if model_type == 'base' else '_instruct'
+        if model_type == 'instruct_zeroshot':
+            prefix = '_instruct_zeroshot'
 
         for metric in METRICS:
             all_metrics = [metric]
@@ -144,11 +159,12 @@ for model in MODELS:
             diffs_at_30 = defaultdict(list)
             diffs_at_50 = defaultdict(list)
             diffs_at_70 = defaultdict(list)
+            ave_test_metric_values = {}
 
             if 'llama' in model:
-                datasets = LLAMA_DATASETS
+                datasets = LLAMA_DATASETS[metric]
             else:
-                datasets = DATASETS
+                datasets = DATASETS[metric]
 
             for dataset in datasets:
                 train_ue_values, \
@@ -158,9 +174,14 @@ for model in MODELS:
                 train_gen_lengths, \
                 gen_lengths = extract_and_prepare_data(dataset, methods_dict, all_metrics, model=model, model_type=model_type)
                 
+                ave_test_metric_values[dataset] = np.mean(test_metric_values[metric])
+                #plt.hist(train_gen_lengths)
+                #plt.savefig(f'charts/{model}{prefix}/{dataset}/train_gen_lengths.png')
+
                 upper_q = np.quantile(train_gen_lengths, 0.95)
                 lower_q = np.quantile(train_gen_lengths, 0.05)
                 below_q_ids = (train_gen_lengths < upper_q) & (train_gen_lengths > lower_q)
+                print(f'{model} {dataset} Below q ids: {below_q_ids.sum()}')
                 train_gen_lengths = train_gen_lengths[below_q_ids]
                 #for metric in all_metrics:
                 #    train_metric_values[metric] = train_metric_values[metric][below_q_ids]
@@ -203,7 +224,11 @@ for model in MODELS:
                 for method in ue_methods:
                     if normalize:
                         gen_length_scaler = MinMaxScaler()
-                        train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
+                        try:
+                            train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
+                        except:
+                            breakpoint()
+                            pass
                         test_gen_lengths_normalized = gen_length_scaler.transform(gen_lengths[:, np.newaxis]).squeeze()
 
                         scaler = MinMaxScaler()
@@ -298,8 +323,13 @@ for model in MODELS:
             for method_i, method in enumerate(ue_methods):
                 ue_scores[f'{method}_raw'].extend((str(raw_mean_ranks[method_i]), '-', total_mean_ranks[method_i * 2]))
                 ue_scores[f'{method}_detr'].extend(('-', str(detr_mean_ranks[method_i]), total_mean_ranks[method_i * 2 + 1]))
+            
+            def colname(dataset):
+                if '_' in dataset:
+                    return dataset.split('_')[1]
+                return dataset
 
-            columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics] + ['raw_rank', 'detr_rank', 'rank']
+            columns = [colname(dataset) for dataset in datasets for metric in all_metrics] + ['raw_rank', 'detr_rank', 'rank']
             df = pd.DataFrame.from_dict(ue_scores, orient='index', columns=columns)
             name = f'tables/{model}{prefix}_{metric}_ue_scores.tex'
             if normalize:
@@ -308,16 +338,18 @@ for model in MODELS:
                 caption = f"PRRs for each method, with ranks for raw and detr methods, and total rank. Metric is {metric}, model is {model}{prefix}."
                 latex = df.style.set_caption(caption).format(precision=2).to_latex()
                 latex = latex.replace('_', '\_')
-                # find first line where \midrule is present
-                #start_id = latex.split('\n').index('\\midrule') + 2
-                # add \midrule every third line starting from start_id
-                header = latex.split('\n')[:3]
-                body = latex.split('\n')[3:-3]
-                footer = latex.split('\n')[-3:]
+
+                lines = latex.split('\n')
+                column_groups = ["&\\multicolumn{4}{c}{\\textbf{WMT14}}&\\multicolumn{4}{c}{\\textbf{WMT19}}\\\\", "\\cmidrule(lr){2-5}", "\\cmidrule(lr){6-9}"]
+                base_quality_row = [''.join([f"&{round(val,2)}" for val in ave_test_metric_values.values()]) + '&-&-&-\\\\']
+                header = lines[0:1] + ['\\footnotesize'] + lines[1:3] + column_groups + base_quality_row
+                body = lines[3:-3]
+                footer = lines[-3:]
                 latex = '\n'.join(header + [line if i % 2 != 0 else line + '\n\\midrule' for i, line in enumerate(body)] + footer)
                 f.write(latex)
 
-            columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics]
+            #columns = [f'{dataset}_{metric}' for dataset in datasets for metric in all_metrics]
+            columns = [colname(dataset) for dataset in datasets for metric in all_metrics]
 
             df = pd.DataFrame.from_dict(diffs_at_30, orient='index', columns=columns)
             name = f'tables/{model}{prefix}_{metric}_ue_rej_diffs_at_30.tex'

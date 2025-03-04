@@ -4,6 +4,10 @@ from lm_polygraph.utils.manager import UEManager
 import sklearn
 from sklearn.preprocessing import MinMaxScaler
 from collections import defaultdict
+import logging
+
+log = logging.getLogger("lm_polygraph")
+log.setLevel(logging.ERROR)
 
 def load_managers(dataset, model='llama', model_type='base'):
     prefix = '' if model_type == 'base' else '_instruct'
