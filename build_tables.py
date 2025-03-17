@@ -49,7 +49,8 @@ methods_dict = {
 }
 
 #MODELS = ['llama', 'mistral7b', 'stablelm12b']
-MODELS = ['llama1b']
+#MODELS = ['llama1b']
+MODELS = ['llama', 'gemma']
 DATASETS = {
     'Comet': [
         'wmt14_csen',
@@ -71,14 +72,11 @@ DATASETS = {
         'wmt19_lten',
         'wmt19_ruen',
     ],
-    'AlignScoreInputOutput': [
-        'xsum'
-    ]
 }
 LLAMA_DATASETS = DATASETS
 
 #METRICS = ['Comet', 'bleu_proper', 'comet_qe', 'comet_metric']
-METRICS = ['Comet', 'bleu_proper', 'AlignScoreInputOutput']
+METRICS = ['Comet', 'bleu_proper']
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 

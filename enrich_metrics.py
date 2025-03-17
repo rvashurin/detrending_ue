@@ -7,7 +7,9 @@ from typing import List
 from lm_polygraph.utils.manager import UEManager
 import pathlib
 
-MODELS = ['llama1b', 'falcon1b', 'qwen1.5b']
+#MODELS = ['llama1b', 'falcon1b', 'qwen1.5b']
+#MODELS = ['llama', 'gemma']
+MODELS = ['gemma']
 DATASETS = [
     'wmt14_csen',
     'wmt14_deen',
@@ -23,7 +25,7 @@ LLAMA_DATASETS = DATASETS
 def get_bleu_scores(
     translated_sentences: List[str],
     reference_sentences: List[str],
-    ):
+):
 
     bleu = BLEU(effective_order=True)
     scores = [bleu.sentence_score(translated_sentences[i], [reference_sentences[i]]).score for i in range(len(translated_sentences))]
