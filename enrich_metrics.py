@@ -7,9 +7,7 @@ from typing import List
 from lm_polygraph.utils.manager import UEManager
 import pathlib
 
-#MODELS = ['llama1b', 'falcon1b', 'qwen1.5b']
-#MODELS = ['llama', 'gemma']
-MODELS = ['gemma']
+MODELS = ['llama', 'gemma', 'eurollm']
 DATASETS = [
     'wmt14_csen',
     'wmt14_deen',
@@ -48,17 +46,15 @@ for model in MODELS:
             datasets = DATASETS
 
         for dataset in datasets:
-            manager = UEManager.load(f'mans/{model}{prefix}_{dataset}_test.man')
+            manager = UEManager.load(f'mans/{model}{prefix}_{dataset}_test_qe_enriched.man')
 
             original_sentences = manager.stats['input_texts']
             translated_sentences = manager.stats['greedy_texts']
             reference_sentences = manager.stats['target_texts']
 
-            #manager.gen_metrics[('sequence', 'comet_metric')] = get_comet_metric_scores(translated_sentences, reference_sentences, original_sentences)[0]
-            #manager.gen_metrics[('sequence', 'comet_qe')] = get_comet_qe_scores(translated_sentences, original_sentences)[0]
             manager.gen_metrics[('sequence', 'bleu_proper')] = get_bleu_scores(translated_sentences, reference_sentences)[0]
 
-            manager.save(f'processed_mans/{model}{prefix}_{dataset}_test_processed.man')
+            manager.save(f'processed_mans/{model}{prefix}_{dataset}_test_qe_enriched_processed.man')
 
             gc.collect()
             torch.cuda.empty_cache()
