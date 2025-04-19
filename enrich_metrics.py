@@ -48,8 +48,8 @@ for model in MODELS:
             pathlib.Path(f'processed_mans').mkdir(parents=True, exist_ok=True)
 
             for dataset in DATASETS:
-                manager = UEManager.load(f'/workspace/mans/{model}{prefix}_{dataset}.man')
-                managers['{model}{prefix}_{dataset}_full_enriched.man'] = manager
+                manager = UEManager.load(f'/workspace/mans/{model}{prefix}_{dataset}_{split}.man')
+                managers['{model}{prefix}_{dataset}_{split}_full_enriched.man'] = manager
 
                 original_sentences = manager.stats['input_texts']
                 translated_sentences = manager.stats['greedy_texts']
