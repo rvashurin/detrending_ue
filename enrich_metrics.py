@@ -27,6 +27,9 @@ DATASETS = [
 source_ignore_regex = re.compile("(?s).*Original:\n(.*?)\nTranslation:\n")
 instruct_source_ignore_regex = re.compile("(?s).*Original: (.*?)<")
 
+translation_ignore_regex = None
+instruct_translation_ignore_regex = re.compile("^Translation: ")
+
 
 def get_bleu_scores(
     translated_sentences: List[str],
@@ -62,8 +65,10 @@ comet = Comet(source_ignore_regex=source_ignore_regex, translation_ignore_regex=
 for name, manager in managers.items():
     if 'instruct' in name:
         comet.source_ignore_regex = instruct_source_ignore_regex
+        comet.translation_ignore_regex = instruct_translation_ignore_regex
     else:
         comet.source_ignore_regex = source_ignore_regex
+        comet.translation_ignore_regex = translation_ignore_regex
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(comet))] = comet(manager.stats, reference_sentences)
@@ -77,8 +82,10 @@ xcomet = XComet(source_ignore_regex=source_ignore_regex, translation_ignore_rege
 for name, manager in managers.items():
     if 'instruct' in name:
         xcomet.source_ignore_regex = instruct_source_ignore_regex
+        xcomet.translation_ignore_regex = instruct_translation_ignore_regex
     else:
         xcomet.source_ignore_regex = source_ignore_regex
+        xcomet.translation_ignore_regex = translation_ignore_regex
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(xcomet))] = xcomet(manager.stats, reference_sentences)
@@ -92,8 +99,10 @@ xmetric = XMetric(source_ignore_regex = source_ignore_regex, translation_ignore_
 for name, manager in managers.items():
     if 'instruct' in name:
         xmetric.source_ignore_regex = instruct_source_ignore_regex
+        xmetric.translation_ignore_regex = instruct_translation_ignore_regex
     else:
         xmetric.source_ignore_regex = source_ignore_regex
+        xmetric.translation_ignore_regex = translation_ignore_regex
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(xmetric))] = xmetric(manager.stats, reference_sentences)
@@ -107,8 +116,10 @@ comet_qe = CometQE(source_ignore_regex=source_ignore_regex, translation_ignore_r
 for name, manager in managers.items():
     if 'instruct' in name:
         comet_qe.source_ignore_regex = instruct_source_ignore_regex
+        comet_qe.translation_ignore_regex = instruct_translation_ignore_regex
     else:
         comet_qe.source_ignore_regex = source_ignore_regex
+        comet_qe.translation_ignore_regex = translation_ignore_regex
 
     manager.estimations[('sequence', str(comet_qe))] = comet_qe(manager.stats)
     manager.save(f'/workspace/processed_mans/{name}')
