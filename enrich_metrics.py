@@ -67,6 +67,7 @@ for name, manager in managers.items():
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(comet))] = comet(manager.stats, reference_sentences)
+    manager.save(f'/workspace/processed_mans/{name}')
 del comet
 gc.collect()
 torch.cuda.empty_cache()
@@ -81,6 +82,7 @@ for name, manager in managers.items():
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(xcomet))] = xcomet(manager.stats, reference_sentences)
+    manager.save(f'/workspace/processed_mans/{name}')
 del xcomet
 gc.collect()
 torch.cuda.empty_cache()
@@ -95,6 +97,7 @@ for name, manager in managers.items():
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(xmetric))] = xmetric(manager.stats, reference_sentences)
+    manager.save(f'/workspace/processed_mans/{name}')
 del xmetric
 gc.collect()
 torch.cuda.empty_cache()
@@ -108,10 +111,12 @@ for name, manager in managers.items():
         comet_qe.source_ignore_regex = source_ignore_regex
 
     manager.estimations[('sequence', str(comet_qe))] = comet_qe(manager.stats)
+    manager.save(f'/workspace/processed_mans/{name}')
 del comet_qe
 gc.collect()
 torch.cuda.empty_cache()
 
 
 for name, manager in managers.items():
+    manager.save(f'/workspace/processed_mans/{name}')
     manager.save(f'/workspace/processed_mans/{name}')
