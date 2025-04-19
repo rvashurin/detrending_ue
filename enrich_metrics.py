@@ -5,7 +5,10 @@ from sacrebleu import BLEU
 from utils import load_managers
 from typing import List
 from lm_polygraph.utils.manager import UEManager
+from lm_polygraph.generation_metrics import *
+from lm_polygraph.estimators import *
 import pathlib
+
 
 MODELS = ['llama', 'gemma', 'eurollm']
 DATASETS = [
@@ -18,43 +21,83 @@ DATASETS = [
     'wmt19_lten',
     'wmt19_ruen',
 ]
-LLAMA_DATASETS = DATASETS
+
+
+source_ignore_regex = re.compile("(?s).*Original:\n(.*?)\nTranslation:\n")
+instruct_source_ignore_regex = re.compile("(?s).*Original: (.*?)<")
+
 
 def get_bleu_scores(
     translated_sentences: List[str],
     reference_sentences: List[str],
 ):
-
     bleu = BLEU(effective_order=True)
     scores = [bleu.sentence_score(translated_sentences[i], [reference_sentences[i]]).score for i in range(len(translated_sentences))]
     signature = bleu.get_signature()
 
     return scores, signature
 
+
+managers = {}
 for model in MODELS:
-    #for model_type in ['base', 'instruct', 'instruct_zeroshot']:
-    for model_type in ['base']:
-        prefix = '' if model_type == 'base' else '_instruct'
-        if model_type == 'instruct_zeroshot':
-            prefix = '_instruct_zeroshot'
+    for model_type in ['base', 'instruct']:
+        for split in ['train', 'test']:
+            prefix = '' if model_type == 'base' else '_instruct'
 
-        pathlib.Path(f'processed_mans').mkdir(parents=True, exist_ok=True)
+            pathlib.Path(f'processed_mans').mkdir(parents=True, exist_ok=True)
 
-        if 'llama' in model:
-            datasets = LLAMA_DATASETS
-        else:
-            datasets = DATASETS
+            for dataset in datasets:
+                manager = UEManager.load(f'/workspace/mans/{model}{prefix}_{dataset}.man')
+                managers['{model}{prefix}_{dataset}_full_enriched.man'] = manager
 
-        for dataset in datasets:
-            manager = UEManager.load(f'mans/{model}{prefix}_{dataset}_test_qe_enriched.man')
+                original_sentences = manager.stats['input_texts']
+                translated_sentences = manager.stats['greedy_texts']
+                reference_sentences = manager.stats['target_texts']
 
-            original_sentences = manager.stats['input_texts']
-            translated_sentences = manager.stats['greedy_texts']
-            reference_sentences = manager.stats['target_texts']
+                manager.gen_metrics[('sequence', 'bleu_proper')] = get_bleu_scores(translated_sentences, reference_sentences)[0]
 
-            manager.gen_metrics[('sequence', 'bleu_proper')] = get_bleu_scores(translated_sentences, reference_sentences)[0]
 
-            manager.save(f'processed_mans/{model}{prefix}_{dataset}_test_qe_enriched_processed.man')
+comet = Comet(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1)
+for name, manager in managers.items():
+    if 'instruct' in name:
+        comet.source_ignore_regex = instruct_source_ignore_regex
+    else:
+        comet.source_ignore_regex = source_ignore_regex
 
-            gc.collect()
-            torch.cuda.empty_cache()
+    reference_sentences = manager.stats['target_texts']
+    manager.gen_metrics[('sequence', str(comet))] = comet(manager.stats, reference_sentences)
+del comet
+gc.collect()
+torch.cuda.empty_cache()
+
+
+xcomet = XComet(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1)
+for name, manager in managers.items():
+    if 'instruct' in name:
+        comet.source_ignore_regex = instruct_source_ignore_regex
+    else:
+        comet.source_ignore_regex = source_ignore_regex
+
+    reference_sentences = manager.stats['target_texts']
+    manager.gen_metrics[('sequence', str(xcomet))] = xcomet(manager.stats, reference_sentences)
+del xcomet
+gc.collect()
+torch.cuda.empty_cache()
+
+
+xmetric = XMetric(source_ignore_regex = source_ignore_regex, translation_ignore_regex = None)
+for name, manager in managers.items():
+    if 'instruct' in name:
+        comet.source_ignore_regex = instruct_source_ignore_regex
+    else:
+        comet.source_ignore_regex = source_ignore_regex
+
+    reference_sentences = manager.stats['target_texts']
+    manager.gen_metrics[('sequence', str(xmetric))] = xmetric(manager.stats, reference_sentences)
+del xmetric
+gc.collect()
+torch.cuda.empty_cache()
+
+
+for name, manager in managers.items():
+    manager.save(f'/workspace/processed_mans/{name}')
