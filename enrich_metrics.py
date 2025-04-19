@@ -49,7 +49,7 @@ for model in MODELS:
 
             for dataset in DATASETS:
                 manager = UEManager.load(f'/workspace/mans/{model}{prefix}_{dataset}_{split}.man')
-                managers['{model}{prefix}_{dataset}_{split}_full_enriched.man'] = manager
+                managers[f'{model}{prefix}_{dataset}_{split}_full_enriched.man'] = manager
 
                 original_sentences = manager.stats['input_texts']
                 translated_sentences = manager.stats['greedy_texts']
