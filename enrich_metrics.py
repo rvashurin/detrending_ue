@@ -74,9 +74,9 @@ torch.cuda.empty_cache()
 xcomet = XComet(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1)
 for name, manager in managers.items():
     if 'instruct' in name:
-        comet.source_ignore_regex = instruct_source_ignore_regex
+        xcomet.source_ignore_regex = instruct_source_ignore_regex
     else:
-        comet.source_ignore_regex = source_ignore_regex
+        xcomet.source_ignore_regex = source_ignore_regex
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(xcomet))] = xcomet(manager.stats, reference_sentences)
@@ -88,13 +88,26 @@ torch.cuda.empty_cache()
 xmetric = XMetric(source_ignore_regex = source_ignore_regex, translation_ignore_regex = None)
 for name, manager in managers.items():
     if 'instruct' in name:
-        comet.source_ignore_regex = instruct_source_ignore_regex
+        xmetric.source_ignore_regex = instruct_source_ignore_regex
     else:
-        comet.source_ignore_regex = source_ignore_regex
+        xmetric.source_ignore_regex = source_ignore_regex
 
     reference_sentences = manager.stats['target_texts']
     manager.gen_metrics[('sequence', str(xmetric))] = xmetric(manager.stats, reference_sentences)
 del xmetric
+gc.collect()
+torch.cuda.empty_cache()
+
+
+comet_qe = CometQE(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1)
+for name, manager in managers.items():
+    if 'instruct' in name:
+        comet_qe.source_ignore_regex = instruct_source_ignore_regex
+    else:
+        comet_qe.source_ignore_regex = source_ignore_regex
+
+    manager.estimations[('sequence', str(comet_qe))] = comet_qe(manager.stats)
+del comet_qe
 gc.collect()
 torch.cuda.empty_cache()
 
