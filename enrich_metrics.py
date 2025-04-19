@@ -8,6 +8,7 @@ from lm_polygraph.utils.manager import UEManager
 from lm_polygraph.generation_metrics import *
 from lm_polygraph.estimators import *
 import pathlib
+import re
 
 
 MODELS = ['llama', 'gemma', 'eurollm']
@@ -46,7 +47,7 @@ for model in MODELS:
 
             pathlib.Path(f'processed_mans').mkdir(parents=True, exist_ok=True)
 
-            for dataset in datasets:
+            for dataset in DATASETS:
                 manager = UEManager.load(f'/workspace/mans/{model}{prefix}_{dataset}.man')
                 managers['{model}{prefix}_{dataset}_full_enriched.man'] = manager
 
