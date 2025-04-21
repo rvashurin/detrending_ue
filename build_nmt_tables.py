@@ -11,7 +11,7 @@ import pathlib
 normalize = True
 
 methods_dict = {
-    'comet_qe': 'Comet QE',
+    #'CometQE-wmt23-cometkiwi-da-xxl': 'Comet QE XXL',
     'MaximumSequenceProbability': 'MSP',
     'Perplexity': 'PPL',
     'MeanTokenEntropy': 'MTE',
@@ -20,9 +20,34 @@ methods_dict = {
     'LexicalSimilarity_rougeL': 'LSRL',
 }
 
-MODELS = ['llama', 'gemma', 'eurollm']
+MODELS = {
+    'llama': 'Llama 3.1 8B',
+    'gemma': 'Gemma 2 9B',
+    'eurollm': 'EuroLLM 9B',
+}
+
 DATASETS = {
-    'Comet': [
+    'metricx-metricx-24-hybrid-large-v2p6': [
+        'wmt14_csen',
+        'wmt14_deen',
+        'wmt14_ruen',
+        'wmt14_fren',
+        'wmt19_deen',
+        'wmt19_fien',
+        'wmt19_lten',
+        'wmt19_ruen',
+    ],
+    'XComet-XCOMET-XXL': [
+        'wmt14_csen',
+        'wmt14_deen',
+        'wmt14_ruen',
+        'wmt14_fren',
+        'wmt19_deen',
+        'wmt19_fien',
+        'wmt19_lten',
+        'wmt19_ruen',
+    ],
+    'Comet-wmt22-comet-da': [
         'wmt14_csen',
         'wmt14_deen',
         'wmt14_ruen',
@@ -44,59 +69,172 @@ DATASETS = {
     ],
 }
 
-METRICS = ['Comet', 'bleu_proper']
+METRICS = {
+    'metricx-metricx-24-hybrid-large-v2p6': 'MetricX Large',
+    'XComet-XCOMET-XXL': 'XComet XXL',
+    'Comet-wmt22-comet-da': 'Comet WMT22',
+    'bleu_proper': 'BLEU',
+}
 
 pathlib.Path('tables').mkdir(parents=True, exist_ok=True)
 pathlib.Path('charts').mkdir(parents=True, exist_ok=True)
 
-for model in MODELS:
-    for model_type in ['base']:
-        prefix = '' if model_type == 'base' else '_instruct'
-        if model_type == 'instruct_zeroshot':
-            prefix = '_instruct_zeroshot'
+def get_header(caption):
+    return (
+        "\\begin{table*}\n"
+        "\\footnotesize\n"
+        f"\caption{{{caption}}}\n"
+        "\\begin{tabular}{lcccccccc}\n"
+        "&\multicolumn{4}{c}{\\textbf{WMT14}}&\multicolumn{4}{c}{\\textbf{WMT19}}\\\\\n"
+        "\cmidrule(lr){2-5}\n"
+        "\cmidrule(lr){6-9}\n"
+    )
 
-        for metric in METRICS:
+def footer():
+    return (
+        "\midrule\n"
+        "\end{tabular}\n"
+        "\end{table*}\n"
+    )
+
+def colname(dataset):
+    if '_' in dataset:
+        dataset = dataset.split('_')[1]
+
+    return dataset[:2].capitalize() + '-' + dataset[2:].capitalize()
+
+def create_subplot_chart(ax, datasets, raw_scores, detrended_scores, model_name, subplot_idx):
+    """
+    Create a bar chart subplot comparing raw and detrended scores for each dataset.
+    """
+    # Separate WMT14 and WMT19 datasets
+    wmt14_indices = [i for i, d in enumerate(datasets) if 'wmt14' in d]
+    wmt19_indices = [i for i, d in enumerate(datasets) if 'wmt19' in d]
+
+    # Calculate x positions for grouped bars
+    width = 0.25  # Slimmer bars
+    x_wmt14 = np.arange(len(wmt14_indices))
+    x_wmt19 = np.arange(len(wmt19_indices)) + len(wmt14_indices) + 0.5  # Add gap between groups
+
+    # Plot WMT14 datasets
+    rects1_wmt14 = ax.bar(x_wmt14 - width/2, [raw_scores[i] for i in wmt14_indices], 
+                         width, label='Raw PRR', color='lightblue')
+    rects2_wmt14 = ax.bar(x_wmt14 + width/2, [detrended_scores[i] for i in wmt14_indices], 
+                         width, label='Detrended PRR', color='orange')
+
+    # Plot WMT19 datasets
+    rects1_wmt19 = ax.bar(x_wmt19 - width/2, [raw_scores[i] for i in wmt19_indices], 
+                         width, color='lightblue')
+    rects2_wmt19 = ax.bar(x_wmt19 + width/2, [detrended_scores[i] for i in wmt19_indices], 
+                         width, color='orange')
+
+    # Larger font sizes
+    if subplot_idx % 3 == 0:
+        ax.set_ylabel('PRR Score', fontsize=16)
+    ax.set_title(model_name, fontsize=16)
+
+    # Set x-ticks and labels
+    all_x = np.concatenate([x_wmt14, x_wmt19])
+    all_datasets = ([datasets[i] for i in wmt14_indices] + 
+                   [datasets[i] for i in wmt19_indices])
+    ax.set_xticks(all_x)
+    ax.set_xticklabels([colname(d) for d in all_datasets], rotation=45, fontsize=14)
+
+    # Add group labels
+    ax.text(np.mean(x_wmt14), ax.get_ylim()[0] - 0.1, 'WMT14', 
+            ha='center', va='top', fontsize=16)
+    ax.text(np.mean(x_wmt19), ax.get_ylim()[0] - 0.1, 'WMT19', 
+            ha='center', va='top', fontsize=16)
+
+    # Increase tick label sizes
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    return rects1_wmt14[0], rects2_wmt14[0]  # Return first pair for legend
+
+for metric, metric_name in METRICS.items():
+    datasets = DATASETS[metric]
+    caption = f"Best PRR scores before and after detrending procedure. Metric is {metric_name}."
+    header = get_header(caption)
+    header += "&" + "&".join([colname(dataset).replace('_', '\\_') for dataset in datasets]) + "\\\\\n"
+    latex = header
+
+    # Create a figure for all models
+    fig, axs = plt.subplots(2, 3, figsize=(20, 12))
+    fig.suptitle(f'PRR Scores Comparison - {metric_name}', fontsize=18)  # Larger title
+    axs = axs.flatten()
+    
+    subplot_idx = 0
+    first_rects = None  # To store the first pair of rectangles for legend
+
+    for model_type in ['base', 'instruct']:
+        for model, model_name in MODELS.items():
             all_metrics = [metric]
             ue_methods = list(methods_dict.values())
-            datasets = DATASETS[metric]
+            latex += "\midrule\n"
+            model_title = model_name if model_type == 'base' else f"{model_name} Instruct"
+            latex += "& \\multicolumn{7}{c}{" + model_title + "}\\\\\n"
+            latex += "\midrule\n"
 
-            ue_scores, ue_coefs, ave_test_metric_values = detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dict)
+            ue_scores, ue_coefs, ave_test_metric_values = detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dict, return_unprocessed=True)
 
-            def colname(dataset):
-                if '_' in dataset:
-                    return dataset.split('_')[1]
-                return dataset
+            best_raw_scores = []
+            best_detr_scores = []
+            raw_scores_float = []
+            detr_scores_float = []
+            
+            for i in range(len(datasets)):
+                best_raw_score = np.max([method_scores[i] for method, method_scores in ue_scores.items() if 'raw' in method])
+                best_detr_score = np.max([method_scores[i] for method, method_scores in ue_scores.items() if 'detr' in method])
+                
+                raw_scores_float.append(best_raw_score)
+                detr_scores_float.append(best_detr_score)
 
-            columns = [colname(dataset) for dataset in datasets for metric in all_metrics] + ['raw_rank', 'detr_rank', 'rank']
-            df = pd.DataFrame.from_dict(ue_scores, orient='index', columns=columns)
-            name = f'tables/{model}{prefix}_{metric}_ue_scores_norm.tex'
-            with open(name, 'w') as f:
-                caption = f"PRRs for each method, with ranks for raw and detr methods, and total rank. Metric is {metric}, model is {model}{prefix}."
-                latex = df.style.set_caption(caption).format(precision=2).to_latex()
-                latex = latex.replace('_', '\_')
+                if best_raw_score > best_detr_score:
+                    best_raw_scores.append(f"\\textbf{{{best_raw_score:.2f}}}")
+                    best_detr_scores.append(f"{best_detr_score:.2f}")
+                else:
+                    best_raw_scores.append(f"{best_raw_score:.2f}")
+                    best_detr_scores.append(f"\\textbf{{{best_detr_score:.2f}}}")
 
-                lines = latex.split('\n')
-                column_groups = ["&\\multicolumn{4}{c}{\\textbf{WMT14}}&\\multicolumn{4}{c}{\\textbf{WMT19}}\\\\", "\\cmidrule(lr){2-5}", "\\cmidrule(lr){6-9}"]
-                base_quality_row = [''.join([f"&{round(val,2)}" for val in ave_test_metric_values.values()]) + '&-&-&-\\\\']
-                header = lines[0:1] + ['\\footnotesize'] + lines[1:3] + column_groups + base_quality_row
-                body = lines[3:-3]
-                footer = lines[-3:]
-                latex = '\n'.join(header + [line if i % 2 != 0 else line + '\n\\midrule' for i, line in enumerate(body)] + footer)
-                f.write(latex)
+            latex += "Best Raw PRR & " + " & ".join(best_raw_scores) + "\\\\\n"
+            latex += "Best Detrended PRR & " + " & ".join(best_detr_scores) + "\\\\\n"
+            
+            # Create subplot without adding a legend
+            rects1, rects2 = create_subplot_chart(
+                axs[subplot_idx],
+                datasets, 
+                raw_scores_float, 
+                detr_scores_float, 
+                model_title,
+                subplot_idx,
+            )
+            
+            # Store first pair of rectangles for legend
+            if subplot_idx == 0:
+                first_rects = (rects1, rects2)
+            
+            subplot_idx += 1
 
-            columns = [colname(dataset) for dataset in datasets for metric in all_metrics]
+    # Add a single legend for the entire figure using the first pair of rectangles
+    fig.legend(
+        first_rects,
+        ['Best Raw PRR', 'Best Detrended PRR'],
+        loc='center right',
+        bbox_to_anchor=(0.18, 0.48),
+        fontsize=14  # Larger legend font
+    )
 
-            columns = []
-            for dataset in datasets:
-                for coef_type in ['train_c', 'test_c']:
-                    columns.append(f'{dataset}_{coef_type}')
+    # Adjust layout to prevent overlapping
+    plt.tight_layout()
+    # Adjust for the main title and legend
+    plt.subplots_adjust(top=0.9, hspace=0.6)
+    
+    # Save the figure
+    fig.savefig(f'charts/{metric}_all_models_comparison.png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
 
-            df = pd.DataFrame.from_dict(ue_coefs, orient='index', columns=columns)
-            name = f'tables/{model}{prefix}_{metric}_ue_trends.tex'
-            if normalize:
-                name = f'tables/{model}{prefix}_{metric}_ue_trends_norm.tex'
+    latex += footer()
 
-            with open(name, 'w') as f:
-                latex = df.to_latex(float_format="%.3f", escape=False)
-                latex = latex.replace('_', '\_')
-                f.write(latex)
+    name = f'tables/best_tables/{metric}_best_ue_scores_norm.tex'
+    with open(name, 'w') as f:
+        f.write(latex)

@@ -82,8 +82,8 @@ def score_ues(ues, metric):
 def load_managers(dataset, model='llama', model_type='base', task='nmt'):
     prefix = '' if model_type == 'base' else '_instruct'
     if task == 'nmt':
-        manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_test_qe_enriched_processed.man')
-        train_manager = UEManager.load(f'mans/{model}{prefix}_{dataset}_train_qe_enriched.man')
+        manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_test_full_enriched.man')
+        train_manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_train_full_enriched.man')
     else:
         manager = UEManager.load(f'mans/{model}{prefix}_{dataset}_test.man')
         train_manager = UEManager.load(f'mans/{model}{prefix}_{dataset}_train.man')
@@ -152,7 +152,7 @@ def extract_and_prepare_data(dataset, methods_dict, all_metrics, model='llama', 
     return train_ue_values, test_ue_values, train_metric_values, test_metric_values, train_gen_lengths, gen_lengths
 
 
-def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dict, task='nmt'):
+def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dict, task='nmt', return_unprocessed=False):
     ue_scores = defaultdict(list)
     ue_coefs = defaultdict(list)
     ave_test_metric_values = {}
@@ -214,6 +214,8 @@ def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dic
             ue_scores[f'{method}_raw'].append(raw_score)
             ue_scores[f'{method}_detr'].append(detrended_score)
 
+    if return_unprocessed:
+        return ue_scores, ue_coefs, ave_test_metric_values
 
     raw_column_values = []
     detr_column_values = []
@@ -252,5 +254,5 @@ def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dic
     for method_i, method in enumerate(ue_methods):
         ue_scores[f'{method}_raw'].extend((str(raw_mean_ranks[method_i]), '-', total_mean_ranks[method_i * 2]))
         ue_scores[f'{method}_detr'].extend(('-', str(detr_mean_ranks[method_i]), total_mean_ranks[method_i * 2 + 1]))
-
+    
     return ue_scores, ue_coefs, ave_test_metric_values
