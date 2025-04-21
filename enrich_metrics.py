@@ -30,6 +30,7 @@ instruct_source_ignore_regex = re.compile("(?s).*Original: (.*?)<")
 translation_ignore_regex = None
 instruct_translation_ignore_regex = re.compile("^Translation: ")
 
+torch.set_float32_matmul_precision("medium")
 
 def get_bleu_scores(
     translated_sentences: List[str],
