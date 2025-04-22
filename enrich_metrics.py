@@ -114,7 +114,39 @@ gc.collect()
 torch.cuda.empty_cache()
 
 
-comet_qe = CometQE(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1)
+comet_qe = CometQE(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1, model="Unbabel/wmt23-cometkiwi-da-xxl")
+for name, manager in managers.items():
+    if 'instruct' in name:
+        comet_qe.source_ignore_regex = instruct_source_ignore_regex
+        comet_qe.translation_ignore_regex = instruct_translation_ignore_regex
+    else:
+        comet_qe.source_ignore_regex = source_ignore_regex
+        comet_qe.translation_ignore_regex = translation_ignore_regex
+
+    manager.estimations[('sequence', str(comet_qe))] = comet_qe(manager.stats)
+    manager.save(f'/workspace/processed_mans/{name}')
+del comet_qe
+gc.collect()
+torch.cuda.empty_cache()
+
+
+comet_qe = CometQE(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1, model="Unbabel/wmt23-cometkiwi-da-xl")
+for name, manager in managers.items():
+    if 'instruct' in name:
+        comet_qe.source_ignore_regex = instruct_source_ignore_regex
+        comet_qe.translation_ignore_regex = instruct_translation_ignore_regex
+    else:
+        comet_qe.source_ignore_regex = source_ignore_regex
+        comet_qe.translation_ignore_regex = translation_ignore_regex
+
+    manager.estimations[('sequence', str(comet_qe))] = comet_qe(manager.stats)
+    manager.save(f'/workspace/processed_mans/{name}')
+del comet_qe
+gc.collect()
+torch.cuda.empty_cache()
+
+
+comet_qe = CometQE(source_ignore_regex=source_ignore_regex, translation_ignore_regex=None, gpus=1, model="Unbabel/wmt22-cometkiwi-da")
 for name, manager in managers.items():
     if 'instruct' in name:
         comet_qe.source_ignore_regex = instruct_source_ignore_regex
@@ -131,5 +163,4 @@ torch.cuda.empty_cache()
 
 
 for name, manager in managers.items():
-    manager.save(f'/workspace/processed_mans/{name}')
     manager.save(f'/workspace/processed_mans/{name}')
