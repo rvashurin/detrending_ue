@@ -22,7 +22,7 @@ methods_dict = {
 
 MODELS = ['llama', 'gemma', 'eurollm']
 DATASETS = {
-    'metricx-metricx-24-hybrid-large-v2p6': [
+    'metricx-metricx-24-hybrid-xxl-v2p6': [
         'wmt14_csen',
         'wmt14_deen',
         'wmt14_ruen',
@@ -65,7 +65,7 @@ DATASETS = {
 }
 
 METRICS = {
-    'metricx-metricx-24-hybrid-large-v2p6': 'MetricX Large',
+    'metricx-metricx-24-hybrid-xxl-v2p6': 'MetricX XXL',
     'XComet-XCOMET-XXL': 'XComet XXL',
     'Comet-wmt22-comet-da': 'Comet WMT22',
     'bleu_proper': 'BLEU',
