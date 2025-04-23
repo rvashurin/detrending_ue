@@ -11,7 +11,9 @@ import pathlib
 normalize = True
 
 methods_dict = {
-    #'CometQE-wmt23-cometkiwi-da-xxl': 'Comet QE XXL',
+    'CometQE-wmt23-cometkiwi-da-xxl': 'Comet QE XXL',
+    'CometQE-wmt23-cometkiwi-da-xl': 'Comet QE XL',
+    'CometQE-wmt22-cometkiwi-da': 'Comet QE',
     'MaximumSequenceProbability': 'MSP',
     'Perplexity': 'PPL',
     'MeanTokenEntropy': 'MTE',
@@ -21,6 +23,7 @@ methods_dict = {
 }
 
 MODELS = ['llama', 'gemma', 'eurollm']
+
 DATASETS = {
     'metricx-metricx-24-hybrid-xxl-v2p6': [
         'wmt14_csen',
@@ -116,13 +119,3 @@ for model in MODELS:
             for dataset in datasets:
                 for coef_type in ['train_c', 'test_c']:
                     columns.append(f'{dataset}_{coef_type}')
-
-            #df = pd.DataFrame.from_dict(ue_coefs, orient='index', columns=columns)
-            #name = f'tables/{model}{prefix}_{metric}_ue_trends.tex'
-            #if normalize:
-            #    name = f'tables/{model}{prefix}_{metric}_ue_trends_norm.tex'
-
-            #with open(name, 'w') as f:
-            #    latex = df.to_latex(float_format="%.3f", escape=False)
-            #    latex = latex.replace('_', '\_')
-            #    f.write(latex)

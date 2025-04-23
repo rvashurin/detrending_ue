@@ -12,7 +12,6 @@ import argparse
 normalize = True
 
 methods_dict = {
-    #'CometQE-wmt23-cometkiwi-da-xxl': 'Comet QE XXL',
     'MaximumSequenceProbability': 'MSP',
     'Perplexity': 'PPL',
     'MeanTokenEntropy': 'MTE',
