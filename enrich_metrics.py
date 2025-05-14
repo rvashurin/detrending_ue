@@ -52,7 +52,7 @@ for model in MODELS:
             pathlib.Path(f'processed_mans').mkdir(parents=True, exist_ok=True)
 
             for dataset in DATASETS:
-                manager = UEManager.load(f'/workspace/processed_mans/{model}{prefix}_{dataset}_{split}.man')
+                manager = UEManager.load(f'/workspace/mans/{model}{prefix}_{dataset}_{split}.man')
                 managers[f'{model}{prefix}_{dataset}_{split}_full_enriched.man'] = manager
 
                 original_sentences = manager.stats['input_texts']
