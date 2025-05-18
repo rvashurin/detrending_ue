@@ -162,19 +162,21 @@ def main(args):
         latex = header
 
         # Create a figure for all models
-        fig, axs = plt.subplots(2, 3, figsize=(20, 12))
+        fig, axs = plt.subplots(3, 3, figsize=(30, 12))
         fig.suptitle(f'{str_select} PRR Scores Comparison - {metric_name}', fontsize=24)  # Larger title
         axs = axs.flatten()
-        
+
         subplot_idx = 0
         first_rects = None  # To store the first pair of rectangles for legend
 
-        for model_type in ['base', 'instruct']:
+        for model_type in ['base', 'instruct', 'instruct_zeroshot']:
             for model, model_name in MODELS.items():
                 all_metrics = [metric]
                 ue_methods = list(methods_dict.values())
                 latex += "\midrule\n"
                 model_title = model_name if model_type == 'base' else f"{model_name} Instruct"
+                if model_type == 'instruct_zeroshot':
+                    model_title = f"{model_name} Instruct Zero-Shot"
                 latex += "& \\multicolumn{7}{c}{" + model_title + "}\\\\\n"
                 latex += "\midrule\n"
 
@@ -242,7 +244,7 @@ def main(args):
 
         # Add a single legend for the entire figure using the first pair of rectangles
         legend_text = [f"{str_select} Raw PRR", f"{str_select} Detrended PRR"]
-            
+
         fig.legend(
             first_rects,
             legend_text,
@@ -255,7 +257,7 @@ def main(args):
         plt.tight_layout()
         # Adjust for the main title and legend
         plt.subplots_adjust(top=0.9, hspace=0.6)
-        
+
         # Save the figure
         fig.savefig(f'charts/{metric}_{args.select}_all_models_comparison.png', dpi=300, bbox_inches='tight')
         plt.close(fig)

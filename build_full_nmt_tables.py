@@ -78,7 +78,8 @@ pathlib.Path('tables').mkdir(parents=True, exist_ok=True)
 pathlib.Path('charts').mkdir(parents=True, exist_ok=True)
 
 for model in MODELS:
-    for model_type in ['base', 'instruct']:
+    #for model_type in ['base', 'instruct']:
+    for model_type in ['instruct_zeroshot']:
         prefix = '' if model_type == 'base' else '_instruct'
         if model_type == 'instruct_zeroshot':
             prefix = '_instruct_zeroshot'

@@ -81,6 +81,9 @@ def score_ues(ues, metric):
 
 def load_managers(dataset, model='llama', model_type='base', task='nmt'):
     prefix = '' if model_type == 'base' else '_instruct'
+    if model_type == 'instruct_zeroshot':
+        prefix = '_instruct_zeroshot'
+
     if task == 'nmt':
         manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_test_full_enriched.man')
         train_manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_train_full_enriched.man')
