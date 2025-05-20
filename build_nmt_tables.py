@@ -242,7 +242,7 @@ def main(args):
 
         # Add a single legend for the entire figure using the first pair of rectangles
         legend_text = [f"{str_select} Raw PRR", f"{str_select} Detrended PRR"]
-            
+
         fig.legend(
             first_rects,
             legend_text,
@@ -255,7 +255,7 @@ def main(args):
         plt.tight_layout()
         # Adjust for the main title and legend
         plt.subplots_adjust(top=0.9, hspace=0.6)
-        
+
         # Save the figure
         fig.savefig(f'charts/{metric}_{args.select}_all_models_comparison.png', dpi=300, bbox_inches='tight')
         plt.close(fig)

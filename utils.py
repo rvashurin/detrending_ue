@@ -6,10 +6,12 @@ from sklearn.preprocessing import MinMaxScaler
 from collections import defaultdict
 import logging
 from lm_polygraph.ue_metrics.pred_rej_area import PredictionRejectionArea
+from sklearn.preprocessing import PolynomialFeatures
 from lm_polygraph.ue_metrics.ue_metric import (
     get_random_scores,
     normalize_metric,
 )
+from IPython.core.debugger import set_trace
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 
@@ -81,6 +83,9 @@ def score_ues(ues, metric):
 
 def load_managers(dataset, model='llama', model_type='base', task='nmt'):
     prefix = '' if model_type == 'base' else '_instruct'
+    if model_type == 'instruct_zeroshot':
+        prefix = '_instruct_zeroshot'
+
     if task == 'nmt':
         manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_test_full_enriched.man')
         train_manager = UEManager.load(f'processed_mans/{model}{prefix}_{dataset}_train_full_enriched.man')
@@ -460,12 +465,17 @@ def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dic
             test_normalized_ue_values[method] = scaler.transform(test_ue_values[method][:, np.newaxis]).squeeze()
 
             linreg = sklearn.linear_model.LinearRegression()
-            linreg.fit(train_gen_lengths_normalized[:, np.newaxis], train_normalized_ue_values[method])
+            poly_features = PolynomialFeatures(degree=3)
+            train_features = poly_features.fit_transform(train_gen_lengths_normalized[:, np.newaxis])[:,1:]
+            
+            linreg.fit(train_features, train_normalized_ue_values[method])
             ue_coefs[method].append(linreg.coef_[0])
 
-            ue_residuals[method] = test_normalized_ue_values[method] - linreg.predict(test_gen_lengths_normalized[:, np.newaxis])
+            test_features = poly_features.fit_transform(test_gen_lengths_normalized[:, np.newaxis])[:,1:]
+            ue_residuals[method] = test_normalized_ue_values[method] - linreg.predict(test_features)
             scaler = MinMaxScaler()
             norm_residuals = scaler.fit_transform(ue_residuals[method][:, np.newaxis]).squeeze()
+            
             linreg = sklearn.linear_model.LinearRegression()
             linreg.fit(test_gen_lengths_normalized[:, np.newaxis], norm_residuals)
             ue_coefs[method].append(linreg.coef_[0])
