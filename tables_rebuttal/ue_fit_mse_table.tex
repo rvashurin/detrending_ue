@@ -1,0 +1,332 @@
+\begin{table*}
+\footnotesize
+\centering
+\caption{MSE and training set size for UE vs. length linear fits. Final summary includes global averages per method.}
+\begin{tabular}{lc}
+\toprule
+Model & Dataset & Metric & Method & MSE & N \\
+\midrule
+Llama 3.1 8B & Gs-M8k & Accuracy & MSP & 0.0136 & 1796 \\
+Llama 3.1 8B & Gs-M8k & Accuracy & PPL & 0.0168 & 1796 \\
+Llama 3.1 8B & Gs-M8k & Accuracy & MTE & 0.0147 & 1796 \\
+Llama 3.1 8B & Gs-M8k & Accuracy & MCSE & 0.0180 & 1796 \\
+Llama 3.1 8B & Gs-M8k & Accuracy & MCNSE & 0.0197 & 1796 \\
+Llama 3.1 8B & Gs-M8k & Accuracy & LSRL & 0.0204 & 1796 \\
+Gemma 2 9B & Gs-M8k & Accuracy & MSP & 0.0086 & 1798 \\
+Gemma 2 9B & Gs-M8k & Accuracy & PPL & 0.0127 & 1798 \\
+Gemma 2 9B & Gs-M8k & Accuracy & MTE & 0.0128 & 1798 \\
+Gemma 2 9B & Gs-M8k & Accuracy & MCSE & 0.0157 & 1798 \\
+Gemma 2 9B & Gs-M8k & Accuracy & MCNSE & 0.0204 & 1798 \\
+Gemma 2 9B & Gs-M8k & Accuracy & LSRL & 0.0220 & 1798 \\
+Llama 3.1 8B & Xs-Um & Align Score & MSP & 0.0373 & 1620 \\
+Llama 3.1 8B & Xs-Um & Align Score & PPL & 0.0358 & 1620 \\
+Llama 3.1 8B & Xs-Um & Align Score & MTE & 0.0385 & 1620 \\
+Llama 3.1 8B & Xs-Um & Align Score & MCSE & 0.0191 & 1620 \\
+Llama 3.1 8B & Xs-Um & Align Score & MCNSE & 0.0186 & 1620 \\
+Llama 3.1 8B & Xs-Um & Align Score & LSRL & 0.0125 & 1620 \\
+Gemma 2 9B & Xs-Um & Align Score & MSP & 0.0289 & 1781 \\
+Gemma 2 9B & Xs-Um & Align Score & PPL & 0.0314 & 1781 \\
+Gemma 2 9B & Xs-Um & Align Score & MTE & 0.0305 & 1781 \\
+Gemma 2 9B & Xs-Um & Align Score & MCSE & 0.0202 & 1781 \\
+Gemma 2 9B & Xs-Um & Align Score & MCNSE & 0.0193 & 1781 \\
+Gemma 2 9B & Xs-Um & Align Score & LSRL & 0.0127 & 1781 \\
+Llama 3.1 8B & Cs-En & MetricX XXL & MSP & 0.0095 & 1771 \\
+Llama 3.1 8B & Cs-En & MetricX XXL & PPL & 0.0100 & 1771 \\
+Llama 3.1 8B & Cs-En & MetricX XXL & MTE & 0.0070 & 1771 \\
+Llama 3.1 8B & Cs-En & MetricX XXL & MCSE & 0.0085 & 1771 \\
+Llama 3.1 8B & Cs-En & MetricX XXL & MCNSE & 0.0146 & 1771 \\
+Llama 3.1 8B & Cs-En & MetricX XXL & LSRL & 0.0232 & 1771 \\
+Llama 3.1 8B & De-En & MetricX XXL & MSP & 0.0109 & 1796 \\
+Llama 3.1 8B & De-En & MetricX XXL & PPL & 0.0151 & 1796 \\
+Llama 3.1 8B & De-En & MetricX XXL & MTE & 0.0141 & 1796 \\
+Llama 3.1 8B & De-En & MetricX XXL & MCSE & 0.0093 & 1796 \\
+Llama 3.1 8B & De-En & MetricX XXL & MCNSE & 0.0183 & 1796 \\
+Llama 3.1 8B & De-En & MetricX XXL & LSRL & 0.0238 & 1796 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MSP & 0.0068 & 1682 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & PPL & 0.0037 & 1682 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MTE & 0.0057 & 1682 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MCSE & 0.0066 & 1682 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MCNSE & 0.0129 & 1682 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & LSRL & 0.0357 & 1682 \\
+Llama 3.1 8B & Fr-En & MetricX XXL & MSP & 0.0116 & 1793 \\
+Llama 3.1 8B & Fr-En & MetricX XXL & PPL & 0.0046 & 1793 \\
+Llama 3.1 8B & Fr-En & MetricX XXL & MTE & 0.0041 & 1793 \\
+Llama 3.1 8B & Fr-En & MetricX XXL & MCSE & 0.0088 & 1793 \\
+Llama 3.1 8B & Fr-En & MetricX XXL & MCNSE & 0.0122 & 1793 \\
+Llama 3.1 8B & Fr-En & MetricX XXL & LSRL & 0.0177 & 1793 \\
+Llama 3.1 8B & De-En & MetricX XXL & MSP & 0.0101 & 1768 \\
+Llama 3.1 8B & De-En & MetricX XXL & PPL & 0.0112 & 1768 \\
+Llama 3.1 8B & De-En & MetricX XXL & MTE & 0.0122 & 1768 \\
+Llama 3.1 8B & De-En & MetricX XXL & MCSE & 0.0042 & 1768 \\
+Llama 3.1 8B & De-En & MetricX XXL & MCNSE & 0.0184 & 1768 \\
+Llama 3.1 8B & De-En & MetricX XXL & LSRL & 0.0221 & 1768 \\
+Llama 3.1 8B & Fi-En & MetricX XXL & MSP & 0.0113 & 1742 \\
+Llama 3.1 8B & Fi-En & MetricX XXL & PPL & 0.0095 & 1742 \\
+Llama 3.1 8B & Fi-En & MetricX XXL & MTE & 0.0105 & 1742 \\
+Llama 3.1 8B & Fi-En & MetricX XXL & MCSE & 0.0069 & 1742 \\
+Llama 3.1 8B & Fi-En & MetricX XXL & MCNSE & 0.0172 & 1742 \\
+Llama 3.1 8B & Fi-En & MetricX XXL & LSRL & 0.0239 & 1742 \\
+Llama 3.1 8B & Lt-En & MetricX XXL & MSP & 0.0089 & 1788 \\
+Llama 3.1 8B & Lt-En & MetricX XXL & PPL & 0.0140 & 1788 \\
+Llama 3.1 8B & Lt-En & MetricX XXL & MTE & 0.0114 & 1788 \\
+Llama 3.1 8B & Lt-En & MetricX XXL & MCSE & 0.0076 & 1788 \\
+Llama 3.1 8B & Lt-En & MetricX XXL & MCNSE & 0.0194 & 1788 \\
+Llama 3.1 8B & Lt-En & MetricX XXL & LSRL & 0.0246 & 1788 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MSP & 0.0084 & 1752 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & PPL & 0.0094 & 1752 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MTE & 0.0087 & 1752 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MCSE & 0.0072 & 1752 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & MCNSE & 0.0172 & 1752 \\
+Llama 3.1 8B & Ru-En & MetricX XXL & LSRL & 0.0274 & 1752 \\
+Gemma 2 9B & Cs-En & MetricX XXL & MSP & 0.0106 & 1773 \\
+Gemma 2 9B & Cs-En & MetricX XXL & PPL & 0.0150 & 1773 \\
+Gemma 2 9B & Cs-En & MetricX XXL & MTE & 0.0140 & 1773 \\
+Gemma 2 9B & Cs-En & MetricX XXL & MCSE & 0.0102 & 1773 \\
+Gemma 2 9B & Cs-En & MetricX XXL & MCNSE & 0.0210 & 1773 \\
+Gemma 2 9B & Cs-En & MetricX XXL & LSRL & 0.0192 & 1773 \\
+Gemma 2 9B & De-En & MetricX XXL & MSP & 0.0087 & 1766 \\
+Gemma 2 9B & De-En & MetricX XXL & PPL & 0.0202 & 1766 \\
+Gemma 2 9B & De-En & MetricX XXL & MTE & 0.0165 & 1766 \\
+Gemma 2 9B & De-En & MetricX XXL & MCSE & 0.0097 & 1766 \\
+Gemma 2 9B & De-En & MetricX XXL & MCNSE & 0.0232 & 1766 \\
+Gemma 2 9B & De-En & MetricX XXL & LSRL & 0.0206 & 1766 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MSP & 0.0065 & 1745 \\
+Gemma 2 9B & Ru-En & MetricX XXL & PPL & 0.0121 & 1745 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MTE & 0.0135 & 1745 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MCSE & 0.0108 & 1745 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MCNSE & 0.0187 & 1745 \\
+Gemma 2 9B & Ru-En & MetricX XXL & LSRL & 0.0308 & 1745 \\
+Gemma 2 9B & Fr-En & MetricX XXL & MSP & 0.0114 & 1765 \\
+Gemma 2 9B & Fr-En & MetricX XXL & PPL & 0.0072 & 1765 \\
+Gemma 2 9B & Fr-En & MetricX XXL & MTE & 0.0084 & 1765 \\
+Gemma 2 9B & Fr-En & MetricX XXL & MCSE & 0.0124 & 1765 \\
+Gemma 2 9B & Fr-En & MetricX XXL & MCNSE & 0.0128 & 1765 \\
+Gemma 2 9B & Fr-En & MetricX XXL & LSRL & 0.0159 & 1765 \\
+Gemma 2 9B & De-En & MetricX XXL & MSP & 0.0070 & 1780 \\
+Gemma 2 9B & De-En & MetricX XXL & PPL & 0.0128 & 1780 \\
+Gemma 2 9B & De-En & MetricX XXL & MTE & 0.0137 & 1780 \\
+Gemma 2 9B & De-En & MetricX XXL & MCSE & 0.0056 & 1780 \\
+Gemma 2 9B & De-En & MetricX XXL & MCNSE & 0.0171 & 1780 \\
+Gemma 2 9B & De-En & MetricX XXL & LSRL & 0.0208 & 1780 \\
+Gemma 2 9B & Fi-En & MetricX XXL & MSP & 0.0115 & 1751 \\
+Gemma 2 9B & Fi-En & MetricX XXL & PPL & 0.0184 & 1751 \\
+Gemma 2 9B & Fi-En & MetricX XXL & MTE & 0.0215 & 1751 \\
+Gemma 2 9B & Fi-En & MetricX XXL & MCSE & 0.0110 & 1751 \\
+Gemma 2 9B & Fi-En & MetricX XXL & MCNSE & 0.0168 & 1751 \\
+Gemma 2 9B & Fi-En & MetricX XXL & LSRL & 0.0220 & 1751 \\
+Gemma 2 9B & Lt-En & MetricX XXL & MSP & 0.0129 & 1800 \\
+Gemma 2 9B & Lt-En & MetricX XXL & PPL & 0.0076 & 1800 \\
+Gemma 2 9B & Lt-En & MetricX XXL & MTE & 0.0127 & 1800 \\
+Gemma 2 9B & Lt-En & MetricX XXL & MCSE & 0.0056 & 1800 \\
+Gemma 2 9B & Lt-En & MetricX XXL & MCNSE & 0.0166 & 1800 \\
+Gemma 2 9B & Lt-En & MetricX XXL & LSRL & 0.0203 & 1800 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MSP & 0.0125 & 1764 \\
+Gemma 2 9B & Ru-En & MetricX XXL & PPL & 0.0089 & 1764 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MTE & 0.0106 & 1764 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MCSE & 0.0117 & 1764 \\
+Gemma 2 9B & Ru-En & MetricX XXL & MCNSE & 0.0196 & 1764 \\
+Gemma 2 9B & Ru-En & MetricX XXL & LSRL & 0.0219 & 1764 \\
+Llama 3.1 8B & Cs-En & XComet XXL & MSP & 0.0095 & 1771 \\
+Llama 3.1 8B & Cs-En & XComet XXL & PPL & 0.0100 & 1771 \\
+Llama 3.1 8B & Cs-En & XComet XXL & MTE & 0.0070 & 1771 \\
+Llama 3.1 8B & Cs-En & XComet XXL & MCSE & 0.0085 & 1771 \\
+Llama 3.1 8B & Cs-En & XComet XXL & MCNSE & 0.0146 & 1771 \\
+Llama 3.1 8B & Cs-En & XComet XXL & LSRL & 0.0232 & 1771 \\
+Llama 3.1 8B & De-En & XComet XXL & MSP & 0.0109 & 1796 \\
+Llama 3.1 8B & De-En & XComet XXL & PPL & 0.0151 & 1796 \\
+Llama 3.1 8B & De-En & XComet XXL & MTE & 0.0141 & 1796 \\
+Llama 3.1 8B & De-En & XComet XXL & MCSE & 0.0093 & 1796 \\
+Llama 3.1 8B & De-En & XComet XXL & MCNSE & 0.0183 & 1796 \\
+Llama 3.1 8B & De-En & XComet XXL & LSRL & 0.0238 & 1796 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MSP & 0.0068 & 1682 \\
+Llama 3.1 8B & Ru-En & XComet XXL & PPL & 0.0037 & 1682 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MTE & 0.0057 & 1682 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MCSE & 0.0066 & 1682 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MCNSE & 0.0129 & 1682 \\
+Llama 3.1 8B & Ru-En & XComet XXL & LSRL & 0.0357 & 1682 \\
+Llama 3.1 8B & Fr-En & XComet XXL & MSP & 0.0116 & 1793 \\
+Llama 3.1 8B & Fr-En & XComet XXL & PPL & 0.0046 & 1793 \\
+Llama 3.1 8B & Fr-En & XComet XXL & MTE & 0.0041 & 1793 \\
+Llama 3.1 8B & Fr-En & XComet XXL & MCSE & 0.0088 & 1793 \\
+Llama 3.1 8B & Fr-En & XComet XXL & MCNSE & 0.0122 & 1793 \\
+Llama 3.1 8B & Fr-En & XComet XXL & LSRL & 0.0177 & 1793 \\
+Llama 3.1 8B & De-En & XComet XXL & MSP & 0.0101 & 1768 \\
+Llama 3.1 8B & De-En & XComet XXL & PPL & 0.0112 & 1768 \\
+Llama 3.1 8B & De-En & XComet XXL & MTE & 0.0122 & 1768 \\
+Llama 3.1 8B & De-En & XComet XXL & MCSE & 0.0042 & 1768 \\
+Llama 3.1 8B & De-En & XComet XXL & MCNSE & 0.0184 & 1768 \\
+Llama 3.1 8B & De-En & XComet XXL & LSRL & 0.0221 & 1768 \\
+Llama 3.1 8B & Fi-En & XComet XXL & MSP & 0.0113 & 1742 \\
+Llama 3.1 8B & Fi-En & XComet XXL & PPL & 0.0095 & 1742 \\
+Llama 3.1 8B & Fi-En & XComet XXL & MTE & 0.0105 & 1742 \\
+Llama 3.1 8B & Fi-En & XComet XXL & MCSE & 0.0069 & 1742 \\
+Llama 3.1 8B & Fi-En & XComet XXL & MCNSE & 0.0172 & 1742 \\
+Llama 3.1 8B & Fi-En & XComet XXL & LSRL & 0.0239 & 1742 \\
+Llama 3.1 8B & Lt-En & XComet XXL & MSP & 0.0089 & 1788 \\
+Llama 3.1 8B & Lt-En & XComet XXL & PPL & 0.0140 & 1788 \\
+Llama 3.1 8B & Lt-En & XComet XXL & MTE & 0.0114 & 1788 \\
+Llama 3.1 8B & Lt-En & XComet XXL & MCSE & 0.0076 & 1788 \\
+Llama 3.1 8B & Lt-En & XComet XXL & MCNSE & 0.0194 & 1788 \\
+Llama 3.1 8B & Lt-En & XComet XXL & LSRL & 0.0246 & 1788 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MSP & 0.0084 & 1752 \\
+Llama 3.1 8B & Ru-En & XComet XXL & PPL & 0.0094 & 1752 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MTE & 0.0087 & 1752 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MCSE & 0.0072 & 1752 \\
+Llama 3.1 8B & Ru-En & XComet XXL & MCNSE & 0.0172 & 1752 \\
+Llama 3.1 8B & Ru-En & XComet XXL & LSRL & 0.0274 & 1752 \\
+Gemma 2 9B & Cs-En & XComet XXL & MSP & 0.0106 & 1773 \\
+Gemma 2 9B & Cs-En & XComet XXL & PPL & 0.0150 & 1773 \\
+Gemma 2 9B & Cs-En & XComet XXL & MTE & 0.0140 & 1773 \\
+Gemma 2 9B & Cs-En & XComet XXL & MCSE & 0.0102 & 1773 \\
+Gemma 2 9B & Cs-En & XComet XXL & MCNSE & 0.0210 & 1773 \\
+Gemma 2 9B & Cs-En & XComet XXL & LSRL & 0.0192 & 1773 \\
+Gemma 2 9B & De-En & XComet XXL & MSP & 0.0087 & 1766 \\
+Gemma 2 9B & De-En & XComet XXL & PPL & 0.0202 & 1766 \\
+Gemma 2 9B & De-En & XComet XXL & MTE & 0.0165 & 1766 \\
+Gemma 2 9B & De-En & XComet XXL & MCSE & 0.0097 & 1766 \\
+Gemma 2 9B & De-En & XComet XXL & MCNSE & 0.0232 & 1766 \\
+Gemma 2 9B & De-En & XComet XXL & LSRL & 0.0206 & 1766 \\
+Gemma 2 9B & Ru-En & XComet XXL & MSP & 0.0065 & 1745 \\
+Gemma 2 9B & Ru-En & XComet XXL & PPL & 0.0121 & 1745 \\
+Gemma 2 9B & Ru-En & XComet XXL & MTE & 0.0135 & 1745 \\
+Gemma 2 9B & Ru-En & XComet XXL & MCSE & 0.0108 & 1745 \\
+Gemma 2 9B & Ru-En & XComet XXL & MCNSE & 0.0187 & 1745 \\
+Gemma 2 9B & Ru-En & XComet XXL & LSRL & 0.0308 & 1745 \\
+Gemma 2 9B & Fr-En & XComet XXL & MSP & 0.0114 & 1765 \\
+Gemma 2 9B & Fr-En & XComet XXL & PPL & 0.0072 & 1765 \\
+Gemma 2 9B & Fr-En & XComet XXL & MTE & 0.0084 & 1765 \\
+Gemma 2 9B & Fr-En & XComet XXL & MCSE & 0.0124 & 1765 \\
+Gemma 2 9B & Fr-En & XComet XXL & MCNSE & 0.0128 & 1765 \\
+Gemma 2 9B & Fr-En & XComet XXL & LSRL & 0.0159 & 1765 \\
+Gemma 2 9B & De-En & XComet XXL & MSP & 0.0070 & 1780 \\
+Gemma 2 9B & De-En & XComet XXL & PPL & 0.0128 & 1780 \\
+Gemma 2 9B & De-En & XComet XXL & MTE & 0.0137 & 1780 \\
+Gemma 2 9B & De-En & XComet XXL & MCSE & 0.0056 & 1780 \\
+Gemma 2 9B & De-En & XComet XXL & MCNSE & 0.0171 & 1780 \\
+Gemma 2 9B & De-En & XComet XXL & LSRL & 0.0208 & 1780 \\
+Gemma 2 9B & Fi-En & XComet XXL & MSP & 0.0115 & 1751 \\
+Gemma 2 9B & Fi-En & XComet XXL & PPL & 0.0184 & 1751 \\
+Gemma 2 9B & Fi-En & XComet XXL & MTE & 0.0215 & 1751 \\
+Gemma 2 9B & Fi-En & XComet XXL & MCSE & 0.0110 & 1751 \\
+Gemma 2 9B & Fi-En & XComet XXL & MCNSE & 0.0168 & 1751 \\
+Gemma 2 9B & Fi-En & XComet XXL & LSRL & 0.0220 & 1751 \\
+Gemma 2 9B & Lt-En & XComet XXL & MSP & 0.0129 & 1800 \\
+Gemma 2 9B & Lt-En & XComet XXL & PPL & 0.0076 & 1800 \\
+Gemma 2 9B & Lt-En & XComet XXL & MTE & 0.0127 & 1800 \\
+Gemma 2 9B & Lt-En & XComet XXL & MCSE & 0.0056 & 1800 \\
+Gemma 2 9B & Lt-En & XComet XXL & MCNSE & 0.0166 & 1800 \\
+Gemma 2 9B & Lt-En & XComet XXL & LSRL & 0.0203 & 1800 \\
+Gemma 2 9B & Ru-En & XComet XXL & MSP & 0.0125 & 1764 \\
+Gemma 2 9B & Ru-En & XComet XXL & PPL & 0.0089 & 1764 \\
+Gemma 2 9B & Ru-En & XComet XXL & MTE & 0.0106 & 1764 \\
+Gemma 2 9B & Ru-En & XComet XXL & MCSE & 0.0117 & 1764 \\
+Gemma 2 9B & Ru-En & XComet XXL & MCNSE & 0.0196 & 1764 \\
+Gemma 2 9B & Ru-En & XComet XXL & LSRL & 0.0219 & 1764 \\
+Llama 3.1 8B & Cs-En & Comet WMT22 & MSP & 0.0095 & 1771 \\
+Llama 3.1 8B & Cs-En & Comet WMT22 & PPL & 0.0100 & 1771 \\
+Llama 3.1 8B & Cs-En & Comet WMT22 & MTE & 0.0070 & 1771 \\
+Llama 3.1 8B & Cs-En & Comet WMT22 & MCSE & 0.0085 & 1771 \\
+Llama 3.1 8B & Cs-En & Comet WMT22 & MCNSE & 0.0146 & 1771 \\
+Llama 3.1 8B & Cs-En & Comet WMT22 & LSRL & 0.0232 & 1771 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MSP & 0.0109 & 1796 \\
+Llama 3.1 8B & De-En & Comet WMT22 & PPL & 0.0151 & 1796 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MTE & 0.0141 & 1796 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MCSE & 0.0093 & 1796 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MCNSE & 0.0183 & 1796 \\
+Llama 3.1 8B & De-En & Comet WMT22 & LSRL & 0.0238 & 1796 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MSP & 0.0068 & 1682 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & PPL & 0.0037 & 1682 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MTE & 0.0057 & 1682 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MCSE & 0.0066 & 1682 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MCNSE & 0.0129 & 1682 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & LSRL & 0.0357 & 1682 \\
+Llama 3.1 8B & Fr-En & Comet WMT22 & MSP & 0.0116 & 1793 \\
+Llama 3.1 8B & Fr-En & Comet WMT22 & PPL & 0.0046 & 1793 \\
+Llama 3.1 8B & Fr-En & Comet WMT22 & MTE & 0.0041 & 1793 \\
+Llama 3.1 8B & Fr-En & Comet WMT22 & MCSE & 0.0088 & 1793 \\
+Llama 3.1 8B & Fr-En & Comet WMT22 & MCNSE & 0.0122 & 1793 \\
+Llama 3.1 8B & Fr-En & Comet WMT22 & LSRL & 0.0177 & 1793 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MSP & 0.0101 & 1768 \\
+Llama 3.1 8B & De-En & Comet WMT22 & PPL & 0.0112 & 1768 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MTE & 0.0122 & 1768 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MCSE & 0.0042 & 1768 \\
+Llama 3.1 8B & De-En & Comet WMT22 & MCNSE & 0.0184 & 1768 \\
+Llama 3.1 8B & De-En & Comet WMT22 & LSRL & 0.0221 & 1768 \\
+Llama 3.1 8B & Fi-En & Comet WMT22 & MSP & 0.0113 & 1742 \\
+Llama 3.1 8B & Fi-En & Comet WMT22 & PPL & 0.0095 & 1742 \\
+Llama 3.1 8B & Fi-En & Comet WMT22 & MTE & 0.0105 & 1742 \\
+Llama 3.1 8B & Fi-En & Comet WMT22 & MCSE & 0.0069 & 1742 \\
+Llama 3.1 8B & Fi-En & Comet WMT22 & MCNSE & 0.0172 & 1742 \\
+Llama 3.1 8B & Fi-En & Comet WMT22 & LSRL & 0.0239 & 1742 \\
+Llama 3.1 8B & Lt-En & Comet WMT22 & MSP & 0.0089 & 1788 \\
+Llama 3.1 8B & Lt-En & Comet WMT22 & PPL & 0.0140 & 1788 \\
+Llama 3.1 8B & Lt-En & Comet WMT22 & MTE & 0.0114 & 1788 \\
+Llama 3.1 8B & Lt-En & Comet WMT22 & MCSE & 0.0076 & 1788 \\
+Llama 3.1 8B & Lt-En & Comet WMT22 & MCNSE & 0.0194 & 1788 \\
+Llama 3.1 8B & Lt-En & Comet WMT22 & LSRL & 0.0246 & 1788 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MSP & 0.0084 & 1752 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & PPL & 0.0094 & 1752 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MTE & 0.0087 & 1752 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MCSE & 0.0072 & 1752 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & MCNSE & 0.0172 & 1752 \\
+Llama 3.1 8B & Ru-En & Comet WMT22 & LSRL & 0.0274 & 1752 \\
+Gemma 2 9B & Cs-En & Comet WMT22 & MSP & 0.0106 & 1773 \\
+Gemma 2 9B & Cs-En & Comet WMT22 & PPL & 0.0150 & 1773 \\
+Gemma 2 9B & Cs-En & Comet WMT22 & MTE & 0.0140 & 1773 \\
+Gemma 2 9B & Cs-En & Comet WMT22 & MCSE & 0.0102 & 1773 \\
+Gemma 2 9B & Cs-En & Comet WMT22 & MCNSE & 0.0210 & 1773 \\
+Gemma 2 9B & Cs-En & Comet WMT22 & LSRL & 0.0192 & 1773 \\
+Gemma 2 9B & De-En & Comet WMT22 & MSP & 0.0087 & 1766 \\
+Gemma 2 9B & De-En & Comet WMT22 & PPL & 0.0202 & 1766 \\
+Gemma 2 9B & De-En & Comet WMT22 & MTE & 0.0165 & 1766 \\
+Gemma 2 9B & De-En & Comet WMT22 & MCSE & 0.0097 & 1766 \\
+Gemma 2 9B & De-En & Comet WMT22 & MCNSE & 0.0232 & 1766 \\
+Gemma 2 9B & De-En & Comet WMT22 & LSRL & 0.0206 & 1766 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MSP & 0.0065 & 1745 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & PPL & 0.0121 & 1745 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MTE & 0.0135 & 1745 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MCSE & 0.0108 & 1745 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MCNSE & 0.0187 & 1745 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & LSRL & 0.0308 & 1745 \\
+Gemma 2 9B & Fr-En & Comet WMT22 & MSP & 0.0114 & 1765 \\
+Gemma 2 9B & Fr-En & Comet WMT22 & PPL & 0.0072 & 1765 \\
+Gemma 2 9B & Fr-En & Comet WMT22 & MTE & 0.0084 & 1765 \\
+Gemma 2 9B & Fr-En & Comet WMT22 & MCSE & 0.0124 & 1765 \\
+Gemma 2 9B & Fr-En & Comet WMT22 & MCNSE & 0.0128 & 1765 \\
+Gemma 2 9B & Fr-En & Comet WMT22 & LSRL & 0.0159 & 1765 \\
+Gemma 2 9B & De-En & Comet WMT22 & MSP & 0.0070 & 1780 \\
+Gemma 2 9B & De-En & Comet WMT22 & PPL & 0.0128 & 1780 \\
+Gemma 2 9B & De-En & Comet WMT22 & MTE & 0.0137 & 1780 \\
+Gemma 2 9B & De-En & Comet WMT22 & MCSE & 0.0056 & 1780 \\
+Gemma 2 9B & De-En & Comet WMT22 & MCNSE & 0.0171 & 1780 \\
+Gemma 2 9B & De-En & Comet WMT22 & LSRL & 0.0208 & 1780 \\
+Gemma 2 9B & Fi-En & Comet WMT22 & MSP & 0.0115 & 1751 \\
+Gemma 2 9B & Fi-En & Comet WMT22 & PPL & 0.0184 & 1751 \\
+Gemma 2 9B & Fi-En & Comet WMT22 & MTE & 0.0215 & 1751 \\
+Gemma 2 9B & Fi-En & Comet WMT22 & MCSE & 0.0110 & 1751 \\
+Gemma 2 9B & Fi-En & Comet WMT22 & MCNSE & 0.0168 & 1751 \\
+Gemma 2 9B & Fi-En & Comet WMT22 & LSRL & 0.0220 & 1751 \\
+Gemma 2 9B & Lt-En & Comet WMT22 & MSP & 0.0129 & 1800 \\
+Gemma 2 9B & Lt-En & Comet WMT22 & PPL & 0.0076 & 1800 \\
+Gemma 2 9B & Lt-En & Comet WMT22 & MTE & 0.0127 & 1800 \\
+Gemma 2 9B & Lt-En & Comet WMT22 & MCSE & 0.0056 & 1800 \\
+Gemma 2 9B & Lt-En & Comet WMT22 & MCNSE & 0.0166 & 1800 \\
+Gemma 2 9B & Lt-En & Comet WMT22 & LSRL & 0.0203 & 1800 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MSP & 0.0125 & 1764 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & PPL & 0.0089 & 1764 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MTE & 0.0106 & 1764 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MCSE & 0.0117 & 1764 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & MCNSE & 0.0196 & 1764 \\
+Gemma 2 9B & Ru-En & Comet WMT22 & LSRL & 0.0219 & 1764 \\
+\midrule
+\multicolumn{6}{c}{\textbf{Global Averages Across All Metrics and Datasets}} \\
+\midrule
+- & - & - & \textbf{MSP} & \textbf{0.0108} & \textbf{1764} \\
+- & - & - & \textbf{PPL} & \textbf{0.0122} & \textbf{1764} \\
+- & - & - & \textbf{MTE} & \textbf{0.0125} & \textbf{1764} \\
+- & - & - & \textbf{MCSE} & \textbf{0.0093} & \textbf{1764} \\
+- & - & - & \textbf{MCNSE} & \textbf{0.0174} & \textbf{1764} \\
+- & - & - & \textbf{LSRL} & \textbf{0.0226} & \textbf{1764} \\
+\midrule
+\end{tabular}
+\end{table*}

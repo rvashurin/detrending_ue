@@ -1,0 +1,49 @@
+Metric,Dataset,Model,Method,ScoreType,Score
+Align Score,xsum,Llama 3.1 8B,MSP,Raw,0.3276031491916531
+Align Score,xsum,Llama 3.1 8B,MSP,Detrended,0.346814330926361
+Align Score,xsum,Llama 3.1 8B,PPL,Raw,0.36913732454561765
+Align Score,xsum,Llama 3.1 8B,PPL,Detrended,0.35550482891062807
+Align Score,xsum,Llama 3.1 8B,MTE,Raw,0.35693043645231126
+Align Score,xsum,Llama 3.1 8B,MTE,Detrended,0.33893274075091046
+Align Score,xsum,Llama 3.1 8B,MCSE,Raw,0.03256961650775154
+Align Score,xsum,Llama 3.1 8B,MCSE,Detrended,0.030177615545271503
+Align Score,xsum,Llama 3.1 8B,MCNSE,Raw,0.023595555329887764
+Align Score,xsum,Llama 3.1 8B,MCNSE,Detrended,0.01015408774626566
+Align Score,xsum,Llama 3.1 8B,LSRL,Raw,0.08802745862439594
+Align Score,xsum,Llama 3.1 8B,LSRL,Detrended,0.07640431949481619
+Align Score,xsum,Gemma 2 9B,MSP,Raw,0.3507311045057958
+Align Score,xsum,Gemma 2 9B,MSP,Detrended,0.35984170066732085
+Align Score,xsum,Gemma 2 9B,PPL,Raw,0.3540892065794288
+Align Score,xsum,Gemma 2 9B,PPL,Detrended,0.35776573380469073
+Align Score,xsum,Gemma 2 9B,MTE,Raw,0.3332207892589499
+Align Score,xsum,Gemma 2 9B,MTE,Detrended,0.3402919145174364
+Align Score,xsum,Gemma 2 9B,MCSE,Raw,0.0030731246183665554
+Align Score,xsum,Gemma 2 9B,MCSE,Detrended,0.005908434647307348
+Align Score,xsum,Gemma 2 9B,MCNSE,Raw,0.016304873803436013
+Align Score,xsum,Gemma 2 9B,MCNSE,Detrended,0.002865152162050596
+Align Score,xsum,Gemma 2 9B,LSRL,Raw,0.04407750343902802
+Align Score,xsum,Gemma 2 9B,LSRL,Detrended,0.046763845047572465
+Acc,gsm8k,Llama 3.1 8B,MSP,Raw,0.32438775939605236
+Acc,gsm8k,Llama 3.1 8B,MSP,Detrended,0.32664003803424735
+Acc,gsm8k,Llama 3.1 8B,PPL,Raw,0.3026300309614496
+Acc,gsm8k,Llama 3.1 8B,PPL,Detrended,0.32070086297863354
+Acc,gsm8k,Llama 3.1 8B,MTE,Raw,0.33931452617747204
+Acc,gsm8k,Llama 3.1 8B,MTE,Detrended,0.35580702260753866
+Acc,gsm8k,Llama 3.1 8B,MCSE,Raw,0.3511727186143658
+Acc,gsm8k,Llama 3.1 8B,MCSE,Detrended,0.34075351815932947
+Acc,gsm8k,Llama 3.1 8B,MCNSE,Raw,0.34277015063985594
+Acc,gsm8k,Llama 3.1 8B,MCNSE,Detrended,0.29497404993390575
+Acc,gsm8k,Llama 3.1 8B,LSRL,Raw,0.3632396053349672
+Acc,gsm8k,Llama 3.1 8B,LSRL,Detrended,0.3055432083216635
+Acc,gsm8k,Gemma 2 9B,MSP,Raw,0.3028441948367712
+Acc,gsm8k,Gemma 2 9B,MSP,Detrended,0.2930432704262195
+Acc,gsm8k,Gemma 2 9B,PPL,Raw,0.24825509077116434
+Acc,gsm8k,Gemma 2 9B,PPL,Detrended,0.30756181969641133
+Acc,gsm8k,Gemma 2 9B,MTE,Raw,0.29151407538513324
+Acc,gsm8k,Gemma 2 9B,MTE,Detrended,0.34330085561770124
+Acc,gsm8k,Gemma 2 9B,MCSE,Raw,0.3932644724525617
+Acc,gsm8k,Gemma 2 9B,MCSE,Detrended,0.3735785606981211
+Acc,gsm8k,Gemma 2 9B,MCNSE,Raw,0.3560989881486637
+Acc,gsm8k,Gemma 2 9B,MCNSE,Detrended,0.34175018734020757
+Acc,gsm8k,Gemma 2 9B,LSRL,Raw,0.39424192349781356
+Acc,gsm8k,Gemma 2 9B,LSRL,Detrended,0.3523845908869497

@@ -1,0 +1,29 @@
+\begin{table*}
+\footnotesize
+\centering
+\caption{MSE and sample size (N) for quality and UE vs. length fits. Metric: Accuracy.}
+\begin{tabular}{lc}
+\toprule
+Model & Dataset & Method & MSE (Q) & MSE (UE) & N \\
+\midrule
+\midrule
+\multicolumn{6}{c}{Llama 3.1 8B} \\
+\midrule
+Llama 3.1 8B & Gs-M8k & MSP & 0.2427 & 0.0136 & 1796 \\
+Llama 3.1 8B & Gs-M8k & PPL & 0.2427 & 0.0168 & 1796 \\
+Llama 3.1 8B & Gs-M8k & MTE & 0.2427 & 0.0147 & 1796 \\
+Llama 3.1 8B & Gs-M8k & MCSE & 0.2427 & 0.0180 & 1796 \\
+Llama 3.1 8B & Gs-M8k & MCNSE & 0.2427 & 0.0197 & 1796 \\
+Llama 3.1 8B & Gs-M8k & LSRL & 0.2427 & 0.0204 & 1796 \\
+\midrule
+\multicolumn{6}{c}{Gemma 2 9B} \\
+\midrule
+Gemma 2 9B & Gs-M8k & MSP & 0.2031 & 0.0086 & 1798 \\
+Gemma 2 9B & Gs-M8k & PPL & 0.2031 & 0.0127 & 1798 \\
+Gemma 2 9B & Gs-M8k & MTE & 0.2031 & 0.0128 & 1798 \\
+Gemma 2 9B & Gs-M8k & MCSE & 0.2031 & 0.0157 & 1798 \\
+Gemma 2 9B & Gs-M8k & MCNSE & 0.2031 & 0.0204 & 1798 \\
+Gemma 2 9B & Gs-M8k & LSRL & 0.2031 & 0.0220 & 1798 \\
+\midrule
+\end{tabular}
+\end{table*}

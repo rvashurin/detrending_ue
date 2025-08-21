@@ -1,0 +1,29 @@
+\begin{table*}
+\footnotesize
+\centering
+\caption{Summary of UE vs. length linear fits. Metric: Align Score.}
+\begin{tabular}{lc}
+\toprule
+Model & Dataset & Method & R$^2$ & MSE & Coef & Intercept & N \\
+\midrule
+\midrule
+\multicolumn{8}{c}{Llama 3.1 8B} \\
+\midrule
+Llama 3.1 8B & Xs-Um & MSP & 0.02 & 0.037 & 0.14 & 0.24 & 1620 \\
+Llama 3.1 8B & Xs-Um & PPL & 0.08 & 0.036 & -0.26 & 0.40 & 1620 \\
+Llama 3.1 8B & Xs-Um & MTE & 0.09 & 0.038 & -0.28 & 0.46 & 1620 \\
+Llama 3.1 8B & Xs-Um & MCSE & 0.00 & 0.019 & 0.04 & 0.41 & 1620 \\
+Llama 3.1 8B & Xs-Um & MCNSE & 0.00 & 0.019 & -0.03 & 0.46 & 1620 \\
+Llama 3.1 8B & Xs-Um & LSRL & 0.00 & 0.013 & 0.03 & 0.73 & 1620 \\
+\midrule
+\multicolumn{8}{c}{Gemma 2 9B} \\
+\midrule
+Gemma 2 9B & Xs-Um & MSP & 0.01 & 0.029 & 0.05 & 0.25 & 1781 \\
+Gemma 2 9B & Xs-Um & PPL & 0.15 & 0.031 & -0.29 & 0.45 & 1781 \\
+Gemma 2 9B & Xs-Um & MTE & 0.18 & 0.030 & -0.32 & 0.52 & 1781 \\
+Gemma 2 9B & Xs-Um & MCSE & 0.00 & 0.020 & 0.04 & 0.32 & 1781 \\
+Gemma 2 9B & Xs-Um & MCNSE & 0.01 & 0.019 & -0.04 & 0.53 & 1781 \\
+Gemma 2 9B & Xs-Um & LSRL & 0.00 & 0.013 & 0.02 & 0.75 & 1781 \\
+\midrule
+\end{tabular}
+\end{table*}
