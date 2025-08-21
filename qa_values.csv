@@ -1,3 +1,0 @@
-model,metric,dataset,slope,p_val
-llama,Accuracy,gsm8k,-0.27663402262143477,2.6820307126909957e-08
-gemma,Accuracy,gsm8k,-0.19004811053819967,2.6384508544019528e-05

@@ -1,3 +1,0 @@
-model,metric,dataset,slope,p_val
-llama,AlignScoreInputOutput,xsum,0.06225729616953303,0.04173346975018795
-gemma,AlignScoreInputOutput,xsum,0.12625049505839359,5.898833305578189e-06
