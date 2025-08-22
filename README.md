@@ -24,4 +24,5 @@ This repository contains the code and processed data for reproducing the Uncerta
 1. **Install Dependencies**
 
    ```bash
-   pip install -r requirements.txt```
+   pip install -r requirements.txt  
+   ```
