@@ -115,9 +115,8 @@ def extract_and_prepare_data(dataset, methods_dict, all_metrics, model='llama'):
     return train_ue_values, test_ue_values, train_metric_values, test_metric_values, train_gen_lengths, gen_lengths
 
 
-def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, methods_dict, task='nmt', return_unprocessed=False, quality_fit_sample_size=None):
+def detrend_ue_w_quality(datasets, model, all_metrics, ue_methods, methods_dict, quality_fit_sample_size=None):
     ue_scores = defaultdict(list)
-    ue_scores_full = {}
     ue_coefs = defaultdict(list)
     ave_test_metric_values = {}
 
@@ -132,7 +131,7 @@ def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, m
         train_metric_values, \
         test_metric_values, \
         train_gen_lengths, \
-        gen_lengths = extract_and_prepare_data(dataset, methods_dict, [metric], model=model, model_type=model_type, task=task)
+        gen_lengths = extract_and_prepare_data(dataset, methods_dict, [metric], model=model)
 
         ave_test_metric_values[dataset] = np.mean(test_metric_values[metric])
 
@@ -150,7 +149,6 @@ def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, m
 
         train_normalized_metric_values = {}
         test_normalized_metric_values = {}
-        ue_residuals = {}
 
 
         for method in ue_methods:
@@ -166,17 +164,7 @@ def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, m
             train_normalized_metric_values[method] = scaler.fit_transform(train_metric_values[metric][:, np.newaxis]).squeeze()
             test_normalized_metric_values[method] = scaler.transform(test_metric_values[metric][:, np.newaxis]).squeeze()
 
-            # quality_reg = sklearn.linear_model.LinearRegression()
-            # quality_reg.fit(train_gen_lengths_normalized[:, np.newaxis], train_normalized_metric_values[method][below_q_ids])
-            # quality_slope = quality_reg.coef_[0]
-
-            # if quality_fit_sample_size is not None and quality_fit_sample_size < len(train_gen_lengths):
-            #     sample_indices = np.random.choice(len(train_gen_lengths), size=quality_fit_sample_size, replace=False)
-            #     quality_reg = sklearn.linear_model.LinearRegression()
-            #     quality_reg.fit(
-            #         train_gen_lengths_normalized[sample_indices, np.newaxis],
-            #         train_normalized_metric_values[method][sample_indices][below_q_ids]
-            #     )
+           
             if quality_fit_sample_size is not None and quality_fit_sample_size < len(train_gen_lengths):
                 # Filter to only non-outliers
                 # filtered_lengths = train_gen_lengths_normalized
@@ -199,13 +187,11 @@ def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, m
 
                 stratified_indices = np.array(stratified_indices)
 
-                # Fit quality regression on stratified sample from non-outliers
                 quality_reg = sklearn.linear_model.LinearRegression()
                 quality_reg.fit(
                     filtered_gen_lengths_normalized[stratified_indices, np.newaxis],
                     filtered_metrics[stratified_indices]
                 )
-
 
             else:
                 quality_reg = sklearn.linear_model.LinearRegression()
@@ -224,14 +210,6 @@ def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, m
             # Predict UE trend on test
             predicted_ue_trend = linreg.predict(test_gen_lengths_normalized[:, np.newaxis])
 
-
-            # joint_reg = sklearn.linear_model.LinearRegression()
-            # joint_reg.fit(np.stack([train_gen_lengths_normalized, train_normalized_metric_values[method]], axis=1),
-                        # train_normalized_ue_values[method])
-            # predicted_trend = joint_reg.predict(np.stack([test_gen_lengths_normalized, test_normalized_metric_values[method]], axis=1))
-            # adjusted_ue = test_normalized_ue_values[method] - predicted_trend
-
-            # Residual-based adjustment
             adjusted_ue = test_normalized_ue_values[method] - predicted_ue_trend - predicted_quality_trend
 
             residual_reg = sklearn.linear_model.LinearRegression()
@@ -242,64 +220,15 @@ def detrend_ue_w_quality(datasets, model, model_type, all_metrics, ue_methods, m
             raw_score = score_ues(test_ue_values[method], met_vals)
             raw_norm_score = score_ues(test_normalized_ue_values[method], met_vals)
             detrended_score = score_ues(adjusted_ue, met_vals)
-            ue_scores_full[f'{method}_raw'] = test_normalized_ue_values[method]
-            ue_scores_full[f'{method}_detr'] = adjusted_ue
             ue_scores[f'{method}_raw'].append(raw_score)
             ue_scores[f'{method}_detr'].append(detrended_score)
-            ue_scores[f'{method}_raw_full'].append(test_normalized_ue_values[method])
-            ue_scores[f'{method}_detr_full'].append(adjusted_ue)
 
-
-
-    normalized_lengths= test_gen_lengths_normalized.tolist()
-
-    if return_unprocessed:
-        return ue_scores, ue_coefs, ave_test_metric_values,  test_gen_lengths_normalized[:, np.newaxis] , test_normalized_metric_values[method]
-
-    raw_column_values = []
-    detr_column_values = []
-    for _id, _ in enumerate(datasets):
-        raw_column_values.append([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
-        detr_column_values.append([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
-
-        metric_raw_scores = np.array([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
-        metric_detr_scores = np.array([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
-
-        top_raw_id = np.argmax(metric_raw_scores)
-        top_detr_id = np.argmax(metric_detr_scores)
-
-        for method in ue_methods:
-            ue_scores[f'{method}_raw'][_id] = f'{ue_scores[f"{method}_raw"][_id]:.2f}'
-            ue_scores[f'{method}_detr'][_id] = f'{ue_scores[f"{method}_detr"][_id]:.2f}'
-
-        # wrap best detr method in bold
-        ue_scores[f'{ue_methods[top_detr_id]}_detr'][_id] = f'\\textbf{{{ue_scores[f"{ue_methods[top_detr_id]}_detr"][_id]}}}'
-        # wrap best raw method in underline
-        ue_scores[f'{ue_methods[top_raw_id]}_raw'][_id] = f'\\underline{{{ue_scores[f"{ue_methods[top_raw_id]}_raw"][_id]}}}'
-
-    total_column_values = []
-    for raw_column, detr_column in zip(raw_column_values, detr_column_values):
-        total_column_values.append([val for pair in zip(raw_column, detr_column) for val in pair])
-
-    raw_method_id_ranks = np.flip(np.argsort(raw_column_values, axis=-1), axis=-1)
-    raw_mean_ranks = [np.nonzero(raw_method_id_ranks == method_i)[1].mean() for method_i, _ in enumerate(ue_methods)]
-
-    detr_method_id_ranks = np.flip(np.argsort(detr_column_values, axis=-1), axis=-1)
-    detr_mean_ranks = [np.nonzero(detr_method_id_ranks == method_i)[1].mean() for method_i, _ in enumerate(ue_methods)]
-
-    total_method_id_ranks = np.flip(np.argsort(total_column_values, axis=-1), axis=-1)
-    total_mean_ranks = [np.nonzero(total_method_id_ranks == method_i)[1].mean() for method_i, _ in enumerate(ue_methods * 2)]
-
-    for method_i, method in enumerate(ue_methods):
-        ue_scores[f'{method}_raw'].extend((str(raw_mean_ranks[method_i]), '-', total_mean_ranks[method_i * 2]))
-        ue_scores[f'{method}_detr'].extend(('-', str(detr_mean_ranks[method_i]), total_mean_ranks[method_i * 2 + 1]))
-    
-    return ue_scores, ue_coefs, ave_test_metric_values, normalized_lengths
+    return ue_scores, ue_coefs, ave_test_metric_values
 
 
 
 
-def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dict, task='nmt', return_unprocessed=False):
+def detrend_ue(datasets, model, all_metrics, ue_methods, methods_dict):
     ue_scores = defaultdict(list)
     ue_coefs = defaultdict(list)
     ave_test_metric_values = {}
@@ -315,7 +244,7 @@ def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dic
         train_metric_values, \
         test_metric_values, \
         train_gen_lengths, \
-        gen_lengths = extract_and_prepare_data(dataset, methods_dict, [metric], model=model, model_type=model_type, task=task)
+        gen_lengths = extract_and_prepare_data(dataset, methods_dict, [metric], model=model)
 
         ave_test_metric_values[dataset] = np.mean(test_metric_values[metric])
 
@@ -360,49 +289,9 @@ def detrend_ue(datasets, model, model_type, all_metrics, ue_methods, methods_dic
 
             ue_scores[f'{method}_raw'].append(raw_score)
             ue_scores[f'{method}_detr'].append(detrended_score)
-
-    if return_unprocessed:
-        return ue_scores, ue_coefs, ave_test_metric_values
-
-    raw_column_values = []
-    detr_column_values = []
-    for _id, _ in enumerate(datasets):
-        raw_column_values.append([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
-        detr_column_values.append([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
-
-        metric_raw_scores = np.array([ue_scores[f'{method}_raw'][_id] for method in ue_methods])
-        metric_detr_scores = np.array([ue_scores[f'{method}_detr'][_id] for method in ue_methods])
-
-        top_raw_id = np.argmax(metric_raw_scores)
-        top_detr_id = np.argmax(metric_detr_scores)
-
-        for method in ue_methods:
-            ue_scores[f'{method}_raw'][_id] = f'{ue_scores[f"{method}_raw"][_id]:.2f}'
-            ue_scores[f'{method}_detr'][_id] = f'{ue_scores[f"{method}_detr"][_id]:.2f}'
-
-        # wrap best detr method in bold
-        ue_scores[f'{ue_methods[top_detr_id]}_detr'][_id] = f'\\textbf{{{ue_scores[f"{ue_methods[top_detr_id]}_detr"][_id]}}}'
-        # wrap best raw method in underline
-        ue_scores[f'{ue_methods[top_raw_id]}_raw'][_id] = f'\\underline{{{ue_scores[f"{ue_methods[top_raw_id]}_raw"][_id]}}}'
-
-    total_column_values = []
-    for raw_column, detr_column in zip(raw_column_values, detr_column_values):
-        total_column_values.append([val for pair in zip(raw_column, detr_column) for val in pair])
-
-    raw_method_id_ranks = np.flip(np.argsort(raw_column_values, axis=-1), axis=-1)
-    raw_mean_ranks = [np.nonzero(raw_method_id_ranks == method_i)[1].mean() for method_i, _ in enumerate(ue_methods)]
-
-    detr_method_id_ranks = np.flip(np.argsort(detr_column_values, axis=-1), axis=-1)
-    detr_mean_ranks = [np.nonzero(detr_method_id_ranks == method_i)[1].mean() for method_i, _ in enumerate(ue_methods)]
-
-    total_method_id_ranks = np.flip(np.argsort(total_column_values, axis=-1), axis=-1)
-    total_mean_ranks = [np.nonzero(total_method_id_ranks == method_i)[1].mean() for method_i, _ in enumerate(ue_methods * 2)]
-
-    for method_i, method in enumerate(ue_methods):
-        ue_scores[f'{method}_raw'].extend((str(raw_mean_ranks[method_i]), '-', total_mean_ranks[method_i * 2]))
-        ue_scores[f'{method}_detr'].extend(('-', str(detr_mean_ranks[method_i]), total_mean_ranks[method_i * 2 + 1]))
     
     return ue_scores, ue_coefs, ave_test_metric_values
+
 
 
 def summarize_quality_fit(datasets, model, model_type, all_metrics, ue_methods, methods_dict, task='nmt', quality_fit_sample_size=None):
