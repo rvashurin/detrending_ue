@@ -3,3 +3,4 @@ charts/*
 tables/*
 .ipynb_checkpoints
 __pycache__
+01_plotting_quality_ue_trends_copy.ipynb
