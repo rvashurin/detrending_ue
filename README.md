@@ -1,5 +1,29 @@
-To obtain Latex tables run `python build_tables.py`.
+# UNCERTAINTY-LINE
 
-Jupyter notebooks contain visualization of linear trends between sequence lengths and UE/quality metrics.
+**Uncertainty-LINE: Length-Invariant Estimation of Uncertainty for Large Language Models**
 
-To run anything first install dependencies, download this tar archive and extract it in the root folder: [link](https://drive.google.com/file/d/141W2qW7Mf0qjx6bPtIch1cKlafBRdQ2D/view?usp=sharing).
+This repository contains the code and processed data for reproducing the Uncertainty-LINE method.
+
+---
+
+## Repository Structure
+
+```
+├── processed_mans/
+│ └── ... # Full experimental managers, including all model outputs, UE and Quality metrics
+├── 01_plots.ipynb # Notebook for generating visualizations and plots
+├── 02_results.ipynb # Notebook for assembling and analyzing overall experimental results
+├── 03_ablations.ipynb # Notebook for running ablation studies to assess method components
+├── utils.py # Main utility functions: data loading, regression, evaluation, plotting, etc.
+├── README.md # This document
+└── requirements.txt # Python dependencies
+```
+
+---
+
+## Getting Started
+
+1. **Install Dependencies**
+
+   ```bash
+   pip install -r requirements.txt
