@@ -4,3 +4,7 @@ tables/*
 .ipynb_checkpoints
 __pycache__
 01_plotting_quality_ue_trends_copy.ipynb
+rebuttal.ipynb
+ue_trend_analysis.ipynb
+tables.ipynb
+tables_coeffs_p_values.ipynb
