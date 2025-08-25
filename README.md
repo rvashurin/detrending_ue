@@ -24,6 +24,8 @@ This repository contains the code and processed data for reproducing the Uncerta
 
 ---
 
+## Usage
+
 1. **Install Dependencies**
 
    ```bash
@@ -61,3 +63,21 @@ This repository contains the code and processed data for reproducing the Uncerta
       model.load_model_args.device_map=auto
    ```
 
+
+
+
+## Citation
+
+If you use this repository, please cite:
+
+```bibtex
+@misc{vashurin2025uncertaintylinelengthinvariantestimationuncertainty,
+      title={UNCERTAINTY-LINE: Length-Invariant Estimation of Uncertainty for Large Language Models}, 
+      author={Roman Vashurin and Maiya Goloburda and Preslav Nakov and Maxim Panov},
+      year={2025},
+      eprint={2505.19060},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.19060}, 
+}
+```
