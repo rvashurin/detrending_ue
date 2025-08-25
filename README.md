@@ -38,8 +38,7 @@ HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
   subsample_eval_dataset=2000 \
   deberta_batch_size=1 \
   +deberta_device=cuda:0 \
-  model.load_model_args.device_map=auto 
-```
+  model.load_model_args.device_map=auto```
 
  ```bash
  HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
@@ -51,5 +50,4 @@ HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
   deberta_batch_size=1 \
   eval_split=train \
   +deberta_device=cuda:0 \
-  model.load_model_args.device_map=auto 
-```
+  model.load_model_args.device_map=auto```
