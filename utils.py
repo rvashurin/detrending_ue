@@ -115,10 +115,11 @@ def extract_and_prepare_data(dataset, methods_dict, all_metrics, model='llama'):
     return train_ue_values, test_ue_values, train_metric_values, test_metric_values, train_gen_lengths, gen_lengths
 
 
-def detrend_ue_w_quality(datasets, model, all_metrics, ue_methods, methods_dict, quality_fit_sample_size=None):
+def detrend_ue_w_quality(datasets, model, all_metrics, ue_methods, methods_dict, quality_fit_sample_size=None, random_state= 42, max_bins= 10 ):
     ue_scores = defaultdict(list)
     ue_coefs = defaultdict(list)
     ave_test_metric_values = {}
+    rng = np.random.default_rng(random_state)
 
     if len(all_metrics) == 1 and len(datasets) > 1:
         all_metrics = all_metrics * len(datasets)
@@ -183,7 +184,7 @@ def detrend_ue_w_quality(datasets, model, all_metrics, ue_methods, methods_dict,
                     bin_indices = np.where(bin_ids == bin_id)[0]
                     n = min(sample_per_bin, len(bin_indices))
                     if n > 0:
-                        stratified_indices.extend(np.random.choice(bin_indices, size=n, replace=False))
+                        stratified_indices.extend(rng.choice(bin_indices, size=n, replace=False))
 
                 stratified_indices = np.array(stratified_indices)
 
