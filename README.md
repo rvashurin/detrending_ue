@@ -29,25 +29,32 @@ This repository contains the code and processed data for reproducing the Uncerta
 
 2. **Run lm-polygraph - collect data for training and test.**
 
+   **Test split:**
+   
    ```bash
-HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
-  polygraph_eval \
-  batch_size=1 \
-  cache_path=/path/to/cache \
-  model=gemma  \
-  subsample_eval_dataset=2000 \
-  deberta_batch_size=1 \
-  +deberta_device=cuda:0 \
-  model.load_model_args.device_map=auto```
+   HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
+     polygraph_eval \
+     batch_size=1 \
+     cache_path=/path/to/cache \
+     model=gemma \
+     subsample_eval_dataset=2000 \
+     deberta_batch_size=1 \
+     +deberta_device=cuda:0 \
+     model.load_model_args.device_map=auto
+   ```
 
- ```bash
- HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
-  polygraph_eval \
-  batch_size=1 \
-  cache_path=/path/to/cache/train \
-  model=gemma \
-  subsample_eval_dataset=2000 \
-  deberta_batch_size=1 \
-  eval_split=train \
-  +deberta_device=cuda:0 \
-  model.load_model_args.device_map=auto```
+   **Train split:**
+   
+   ```bash
+   HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
+      polygraph_eval \
+      batch_size=1 \
+      cache_path=/path/to/cache/train \
+      model=gemma \
+      subsample_eval_dataset=2000 \
+      deberta_batch_size=1 \
+      eval_split=train \
+      +deberta_device=cuda:0 \
+      model.load_model_args.device_map=auto
+   ```
+
