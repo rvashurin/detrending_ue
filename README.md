@@ -27,7 +27,7 @@ This repository contains the code and processed data for reproducing the Uncerta
    pip install -r requirements.txt  
    ```
 
-2. **Run lm-polygraph**
+2. **Run lm-polygraph - collect data for training and test.**
 
    ```bash
 HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
@@ -39,10 +39,10 @@ HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
   deberta_batch_size=1 \
   +deberta_device=cuda:0 \
   model.load_model_args.device_map=auto 
+```
 
-
-# Run evaluation on the train split
-HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
+ ```bash
+ HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
   polygraph_eval \
   batch_size=1 \
   cache_path=/path/to/cache/train \
@@ -52,4 +52,4 @@ HYDRA_CONFIG=`pwd`/examples/configs/polygraph_eval_wmt14_csen.yaml \
   eval_split=train \
   +deberta_device=cuda:0 \
   model.load_model_args.device_map=auto 
-   ```
+```
