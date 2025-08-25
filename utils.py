@@ -14,6 +14,7 @@ import pandas as pd
 from sklearn.preprocessing import KBinsDiscretizer
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import PolynomialFeatures
 
 ue_metric = PredictionRejectionArea(max_rejection=0.5)
 
@@ -113,6 +114,75 @@ def extract_and_prepare_data(dataset, methods_dict, all_metrics, model='llama'):
     gen_lengths = np.delete(gen_lengths, test_nans)
 
     return train_ue_values, test_ue_values, train_metric_values, test_metric_values, train_gen_lengths, gen_lengths
+
+
+
+def detrend_ue(datasets, model, all_metrics, ue_methods, methods_dict):
+    ue_scores = defaultdict(list)
+    ue_coefs = defaultdict(list)
+    ave_test_metric_values = {}
+
+    if len(all_metrics) == 1 and len(datasets) > 1:
+        all_metrics = all_metrics * len(datasets)
+    elif len(all_metrics) != len(datasets):
+        raise ValueError('Number of metrics and datasets must be the same')
+
+    for metric, dataset in zip(all_metrics, datasets):
+        train_ue_values, \
+        test_ue_values, \
+        train_metric_values, \
+        test_metric_values, \
+        train_gen_lengths, \
+        gen_lengths = extract_and_prepare_data(dataset, methods_dict, [metric], model=model)
+
+        ave_test_metric_values[dataset] = np.mean(test_metric_values[metric])
+
+        upper_q = np.quantile(train_gen_lengths, 0.95)
+        lower_q = np.quantile(train_gen_lengths, 0.05)
+        below_q_ids = (train_gen_lengths < upper_q) & (train_gen_lengths > lower_q)
+        print(f'{model} {dataset} Below q ids: {below_q_ids.sum()}')
+        train_gen_lengths = train_gen_lengths[below_q_ids]
+
+        for method in ue_methods:
+            train_ue_values[method] = train_ue_values[method][below_q_ids]
+
+        train_normalized_ue_values = {}
+        test_normalized_ue_values = {}
+
+        ue_residuals = {}
+
+        for method in ue_methods:
+            gen_length_scaler = MinMaxScaler()
+            train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
+            test_gen_lengths_normalized = gen_length_scaler.transform(gen_lengths[:, np.newaxis]).squeeze()
+
+            scaler = MinMaxScaler()
+            train_normalized_ue_values[method] = scaler.fit_transform(train_ue_values[method][:, np.newaxis]).squeeze()
+            test_normalized_ue_values[method] = scaler.transform(test_ue_values[method][:, np.newaxis]).squeeze()
+
+            linreg = sklearn.linear_model.LinearRegression()
+            linreg.fit(train_gen_lengths_normalized[:, np.newaxis], train_normalized_ue_values[method])
+            ue_coefs[method].append(linreg.coef_[0])
+
+            ue_residuals[method] = test_normalized_ue_values[method] - linreg.predict(test_gen_lengths_normalized[:, np.newaxis])
+            scaler = MinMaxScaler()
+            norm_residuals = scaler.fit_transform(ue_residuals[method][:, np.newaxis]).squeeze()
+            linreg = sklearn.linear_model.LinearRegression()
+            linreg.fit(test_gen_lengths_normalized[:, np.newaxis], norm_residuals)
+            ue_coefs[method].append(linreg.coef_[0])
+
+            met_vals = test_metric_values[metric]
+            raw_score = score_ues(test_ue_values[method], met_vals)
+            raw_norm_score = score_ues(test_normalized_ue_values[method], met_vals)
+            detrended_score = score_ues(ue_residuals[method], met_vals)
+
+            ue_scores[f'{method}_raw'].append(raw_score)
+            ue_scores[f'{method}_detr'].append(detrended_score)
+    
+    return ue_scores, ue_coefs, ave_test_metric_values
+
+
+
 
 
 def detrend_ue_w_quality(datasets, model, all_metrics, ue_methods, methods_dict, quality_fit_sample_size=None, random_state= 42, max_bins= 10 ):
@@ -227,73 +297,81 @@ def detrend_ue_w_quality(datasets, model, all_metrics, ue_methods, methods_dict,
     return ue_scores, ue_coefs, ave_test_metric_values
 
 
-
-
-def detrend_ue(datasets, model, all_metrics, ue_methods, methods_dict):
-    ue_scores = defaultdict(list)
-    ue_coefs = defaultdict(list)
+def detrend_ue_degreed(
+    datasets,
+    model,
+    all_metrics,
+    ue_methods,
+    methods_dict):
+   
+    ue_scores = defaultdict(list)   # keys: f'{method}_raw', f'{method}_deg1/2/3'
+    ue_coefs  = defaultdict(list)   # keys: f'{method}_deg1/2/3' -> list of coef arrays
     ave_test_metric_values = {}
 
+    # Align metrics to datasets
     if len(all_metrics) == 1 and len(datasets) > 1:
         all_metrics = all_metrics * len(datasets)
     elif len(all_metrics) != len(datasets):
         raise ValueError('Number of metrics and datasets must be the same')
 
     for metric, dataset in zip(all_metrics, datasets):
-        train_ue_values, \
-        test_ue_values, \
-        train_metric_values, \
-        test_metric_values, \
-        train_gen_lengths, \
-        gen_lengths = extract_and_prepare_data(dataset, methods_dict, [metric], model=model)
+        (train_ue_values,
+         test_ue_values,
+         train_metric_values,
+         test_metric_values,
+         train_gen_lengths,
+         gen_lengths) = extract_and_prepare_data(
+            dataset, methods_dict, [metric],
+            model=model
+        )
 
-        ave_test_metric_values[dataset] = np.mean(test_metric_values[metric])
+        ave_test_metric_values[dataset] = float(np.mean(test_metric_values[metric]))
 
+        # Trim extreme lengths (5th–95th percentile) on TRAIN only
         upper_q = np.quantile(train_gen_lengths, 0.95)
         lower_q = np.quantile(train_gen_lengths, 0.05)
-        below_q_ids = (train_gen_lengths < upper_q) & (train_gen_lengths > lower_q)
-        print(f'{model} {dataset} Below q ids: {below_q_ids.sum()}')
-        train_gen_lengths = train_gen_lengths[below_q_ids]
+        keep_ids = (train_gen_lengths < upper_q) & (train_gen_lengths > lower_q)
+
+        train_gen_lengths = train_gen_lengths[keep_ids]
+        for method in ue_methods:
+            train_ue_values[method] = train_ue_values[method][keep_ids]
+
+        len_scaler = MinMaxScaler()
+        train_gl_norm = len_scaler.fit_transform(train_gen_lengths[:, None]).squeeze()
+        test_gl_norm  = len_scaler.transform(gen_lengths[:, None]).squeeze()
+
+        # Prepare polynomial feature generators for degrees 1..3
+        poly_by_deg = {d: PolynomialFeatures(degree=d, include_bias=False) for d in (1, 2, 3)}
+        train_feats_by_deg = {d: poly.fit_transform(train_gl_norm[:, None]) for d, poly in poly_by_deg.items()}
+        test_feats_by_deg  = {d: poly_by_deg[d].transform(test_gl_norm[:, None]) for d in (1, 2, 3)}
 
         for method in ue_methods:
-            train_ue_values[method] = train_ue_values[method][below_q_ids]
+            # Normalize UE on TRAIN, apply to TEST
+            ue_scaler = MinMaxScaler()
+            train_ue_norm = ue_scaler.fit_transform(train_ue_values[method][:, None]).squeeze()
+            test_ue_norm  = ue_scaler.transform(test_ue_values[method][:, None]).squeeze()
 
-        train_normalized_ue_values = {}
-        test_normalized_ue_values = {}
-
-        ue_residuals = {}
-
-        for method in ue_methods:
-            gen_length_scaler = MinMaxScaler()
-            train_gen_lengths_normalized = gen_length_scaler.fit_transform(train_gen_lengths[:, np.newaxis]).squeeze()
-            test_gen_lengths_normalized = gen_length_scaler.transform(gen_lengths[:, np.newaxis]).squeeze()
-
-            scaler = MinMaxScaler()
-            train_normalized_ue_values[method] = scaler.fit_transform(train_ue_values[method][:, np.newaxis]).squeeze()
-            test_normalized_ue_values[method] = scaler.transform(test_ue_values[method][:, np.newaxis]).squeeze()
-
-            linreg = sklearn.linear_model.LinearRegression()
-            linreg.fit(train_gen_lengths_normalized[:, np.newaxis], train_normalized_ue_values[method])
-            ue_coefs[method].append(linreg.coef_[0])
-
-            ue_residuals[method] = test_normalized_ue_values[method] - linreg.predict(test_gen_lengths_normalized[:, np.newaxis])
-            scaler = MinMaxScaler()
-            norm_residuals = scaler.fit_transform(ue_residuals[method][:, np.newaxis]).squeeze()
-            linreg = sklearn.linear_model.LinearRegression()
-            linreg.fit(test_gen_lengths_normalized[:, np.newaxis], norm_residuals)
-            ue_coefs[method].append(linreg.coef_[0])
-
+            # Baseline (raw) score: use unnormalized test UE values as in your original
             met_vals = test_metric_values[metric]
             raw_score = score_ues(test_ue_values[method], met_vals)
-            raw_norm_score = score_ues(test_normalized_ue_values[method], met_vals)
-            detrended_score = score_ues(ue_residuals[method], met_vals)
+            ue_scores[f'{method}_raw'].append(float(raw_score))
 
-            ue_scores[f'{method}_raw'].append(raw_score)
-            ue_scores[f'{method}_detr'].append(detrended_score)
-    
+            # Degree-specific corrections
+            for d in (1, 2, 3):
+                linreg = sklearn.linear_model.LinearRegression()
+                linreg.fit(train_feats_by_deg[d], train_ue_norm)
+                # Save coefs for later inspection (shape: n_features,)
+                ue_coefs[f'{method}_deg{d}'].append(linreg.coef_.copy())
+
+                # Residuals on TEST (using normalized UE)
+                pred_norm = linreg.predict(test_feats_by_deg[d])
+                residuals = test_ue_norm - pred_norm
+
+                # Score residuals vs metric
+                detr_score = score_ues(residuals, met_vals)
+                ue_scores[f'{method}_deg{d}'].append(float(detr_score))
+
     return ue_scores, ue_coefs, ave_test_metric_values
-
-
 
 def summarize_quality_fit(datasets, model, model_type, all_metrics, ue_methods, methods_dict, task='nmt', quality_fit_sample_size=None):
     summary_stats = defaultdict(lambda: defaultdict(dict))
